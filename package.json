@@ -2,11 +2,17 @@
   "name": "create-nosa",
   "module": "index.ts",
   "type": "module",
+  "bin": {
+    "create-nosa": "./index.ts"
+  },
   "private": true,
   "devDependencies": {
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.4.0"
   }
 }
