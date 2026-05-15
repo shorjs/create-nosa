@@ -7,10 +7,11 @@
   "type": "module",
   "module": "index.ts",
   "scripts": {
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
+    "lint": "oxlint --disable-nested-config",
+    "lint:fix": "oxlint --fix --disable-nested-config",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
+    "ts:check": "tsc --noEmit",
     "prepare": "bunx --bun simple-git-hooks"
   },
   "dependencies": {

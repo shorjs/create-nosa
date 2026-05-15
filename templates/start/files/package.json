@@ -5,7 +5,12 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "postinstall": "bunx --bun simple-git-hooks"
   },
   "dependencies": {
     "@tailwindcss/vite": "4.3.0",
@@ -19,7 +24,18 @@
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
+    "nano-staged": "^1.0.2",
+    "oxfmt": "^0.49.0",
+    "oxlint": "^1.64.0",
+    "simple-git-hooks": "^2.13.1",
     "typescript": "6.0.3",
     "vite": "8.0.13"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "./node_modules/.bin/nano-staged"
+  },
+  "nano-staged": {
+    "*": "bun run fmt --no-error-on-unmatched-pattern",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "bun run lint:fix"
   }
 }
