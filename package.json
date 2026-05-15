@@ -14,7 +14,8 @@
     "prepare": "bunx --bun simple-git-hooks"
   },
   "dependencies": {
-    "@clack/prompts": "^1.4.0"
+    "@clack/prompts": "^1.4.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/bun": "latest",

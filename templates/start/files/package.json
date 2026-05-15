@@ -1,0 +1,8 @@
+{
+  "name": "nosa-start",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot index.ts",
+    "start": "bun index.ts"
+  }
+}
