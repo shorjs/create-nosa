@@ -1,18 +1,37 @@
 {
   "name": "create-nosa",
-  "module": "index.ts",
-  "type": "module",
+  "private": true,
   "bin": {
     "create-nosa": "./index.ts"
   },
-  "private": true,
+  "type": "module",
+  "module": "index.ts",
+  "scripts": {
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "postinstall": "bunx --bun simple-git-hooks"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.4.0"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "nano-staged": "^1.0.2",
+    "oxfmt": "^0.49.0",
+    "oxlint": "^1.64.0",
+    "oxlint-tsgolint": "^0.22.1",
+    "simple-git-hooks": "^2.13.1"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
-  "dependencies": {
-    "@clack/prompts": "^1.4.0"
+  "simple-git-hooks": {
+    "pre-commit": "./node_modules/.bin/nano-staged"
+  },
+  "nano-staged": {
+    "*": "bun run --bun fmt --no-error-on-unmatched-pattern",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "bun run --bun lint:fix"
   }
 }

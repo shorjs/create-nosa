@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
 
-import { runCli } from "./src/cli.ts";
+import { runCli } from './src/cli.ts'
 
-await runCli();
+await runCli()
