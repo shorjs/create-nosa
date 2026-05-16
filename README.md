@@ -1,34 +1,53 @@
 # create-nosa
 
-Create a new nosa project.
+Scaffolding for nosa projects.
+
+`create-nosa` is a Bun first project generator. It runs an interactive setup flow, copies a selected template, installs dependencies with Bun, initializes git, and creates an initial commit.
+
+## Requirements
+
+- Bun `>=1.3.0`
+- Git
 
 ## Usage
 
-create-nosa is Bun-only for now.
+With Bun:
 
 ```bash
 bun create nosa@latest
 ```
 
+You can also run the package directly:
+
+```bash
+bunx --bun create-nosa@latest
+```
+
+The CLI currently runs in interactive mode, but you can also specify your project name and template with command line arguments.
+
+```bash
+# bun
+bun create nosa@latest my-nosa-app --template start
+# bunx
+bunx --bun create-nosa@latest my-nosa-app --template start
+```
+
+## Templates
+
+| Name    | Description                      |
+| :------ | :------------------------------- |
+| `start` | TanStack Start with Tailwind CSS |
+
+Templates live in [`templates`](./templates). Each template has a `meta.json` file for the prompt label and a `files` directory containing the generated project files.
+
 Other runners such as `npx`, `pnpm dlx`, and `yarn create` are not supported because the CLI uses Bun runtime APIs.
 
-## Development
+## CLI Flags
 
-To install dependencies:
+May be provided in place of prompts
 
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-To check the project:
-
-```bash
-bun run lint
-bun run ts:check
-```
+| Name                | Description                              |
+| :------------------ | :--------------------------------------- |
+| `--help` (`-h`)     | Display available flags.                 |
+| `--template <name>` | Select a template without prompting.     |
+| `--yes (`-y`)`      | Skip all prompts by accepting defaults.. |
