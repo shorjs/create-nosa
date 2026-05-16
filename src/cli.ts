@@ -104,6 +104,7 @@ export async function runCli() {
           const projectName = await text({
             message: 'Project name',
             placeholder: defaultProjectName,
+            defaultValue: defaultProjectName,
             validate(value) {
               const projectNameResult = projectNameSchema.safeParse(value)
 
