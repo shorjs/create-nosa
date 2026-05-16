@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: release-${{ github.ref }}
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    name: Release Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun ci
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run ts:check
+
+      - name: Check package contents
+        run: bun pm pack --dry-run --ignore-scripts
+
+      - name: Publish to npm
+        run: npm publish --provenance --ignore-scripts
+
+      - name: Create GitHub release
+        run: bunx --bun changelogithub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -33,7 +33,7 @@
     "fmt:check": "oxfmt --check",
     "release": "bumpp --git-check --commit --push --tag",
     "ts:check": "tsc --noEmit",
-    "prepare": "bunx --bun simple-git-hooks"
+    "prepare": "bun run simple-git-hooks"
   },
   "dependencies": {
     "@clack/prompts": "^1.4.0",
