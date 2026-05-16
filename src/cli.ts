@@ -1,4 +1,4 @@
-import { cancel, intro, isCancel, outro, select, text } from '@clack/prompts'
+import { cancel, intro, isCancel, outro, select, spinner, text } from '@clack/prompts'
 import { $, Glob } from 'bun'
 import { mkdir, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
@@ -142,14 +142,37 @@ export async function runCli() {
       await Bun.write(targetFilePath, Bun.file(sourceFilePath))
     }
 
-    await $`git init ${targetPath}`.quiet()
+    const operation = spinner()
+    const initialCommitMessage = `feat: initial commit using ${selectedTemplate.id}`
+
+    operation.start('Installing dependencies with Bun')
+
+    try {
+      await $`bun install`.cwd(targetPath).quiet()
+      operation.stop('Installed dependencies with Bun')
+    } catch (error) {
+      operation.error('Failed to install dependencies with Bun')
+      throw error
+    }
+
+    operation.start('Creating the initial git commit')
+
+    try {
+      await $`git init`.cwd(targetPath).quiet()
+      await $`bunx --bun simple-git-hooks`.cwd(targetPath).quiet()
+      await $`git add .`.cwd(targetPath).quiet()
+      await $`git commit -m ${initialCommitMessage}`.cwd(targetPath).quiet()
+      operation.stop('Created the initial git commit')
+    } catch (error) {
+      operation.error('Failed to create the initial git commit')
+      throw error
+    }
 
     outro(`Created ${normalizedProjectName} using ${selectedTemplate.label}.
-Initialized a git repository.
+Installed dependencies and committed the initial project.
 
 Next commands:
   cd ${normalizedProjectName}
-  bun install
   bun run dev`)
   } catch (error) {
     cancel(error instanceof Error ? error.message : 'Unexpected error.')

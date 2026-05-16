@@ -16,8 +16,8 @@ The CLI should stay lean, interactive, and easy to extend. The first flow should
 - project name,
 - template,
 - add ons,
-- init git or not,
-- run bun install or not,
+- run bun install,
+- init git,
 - generate the project and print the next commands to start development.
 
 The primary target is Bun projects. Non Bun runtimes or package managers may work where compatible, but they are not the main concern.
