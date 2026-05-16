@@ -1,5 +1,5 @@
 import { cancel, intro, isCancel, outro, select, text } from '@clack/prompts'
-import { Glob } from 'bun'
+import { $, Glob } from 'bun'
 import { mkdir, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
 import { z } from 'zod'
@@ -138,7 +138,10 @@ export async function runCli() {
       await Bun.write(targetFilePath, Bun.file(sourceFilePath))
     }
 
+    await $`git init ${targetPath}`.quiet()
+
     outro(`Created ${normalizedProjectName} using ${selectedTemplate.label}.
+Initialized a git repository.
 
 Next commands:
   cd ${normalizedProjectName}
