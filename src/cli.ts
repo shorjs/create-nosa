@@ -132,7 +132,11 @@ export async function runCli() {
       onlyFiles: true,
     })) {
       const sourceFilePath = join(selectedTemplate.filesPath, filePath)
-      const targetFilePath = join(targetPath, filePath)
+      const targetRelativeFilePath = filePath
+        .split('/')
+        .map((pathSegment) => (pathSegment === '_gitignore' ? '.gitignore' : pathSegment))
+        .join('/')
+      const targetFilePath = join(targetPath, targetRelativeFilePath)
 
       await mkdir(dirname(targetFilePath), { recursive: true })
       await Bun.write(targetFilePath, Bun.file(sourceFilePath))
