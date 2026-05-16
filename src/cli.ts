@@ -106,7 +106,7 @@ export async function runCli() {
             placeholder: defaultProjectName,
             defaultValue: defaultProjectName,
             validate(value) {
-              const projectNameResult = projectNameSchema.safeParse(value)
+              const projectNameResult = projectNameSchema.safeParse(value || defaultProjectName)
 
               if (!projectNameResult.success) {
                 return getFirstZodIssueMessage(projectNameResult.error)
