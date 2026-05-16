@@ -23,6 +23,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
@@ -39,7 +46,7 @@ jobs:
         run: bun pm pack --dry-run --ignore-scripts
 
       - name: Publish to npm
-        run: npm publish --provenance --ignore-scripts
+        run: npm publish --ignore-scripts
 
       - name: Create GitHub release
         run: bunx --bun changelogithub
