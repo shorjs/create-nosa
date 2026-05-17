@@ -10,9 +10,18 @@ import {
   getFirstZodIssueMessage,
   toValidPackageName,
 } from './schemas'
-import { addons, type Addon, type Template } from './addons'
+
+const addons = [
+  {
+    id: 'shadcn',
+    label: 'shadcn/ui',
+    description: 'Prepare shadcn/ui with the Button component.',
+    supportedTemplates: ['start'],
+  },
+]
 
 const defaultProjectName = 'my-nosa-app'
+const defaultShadcnPreset = 'nova'
 
 export async function runCli() {
   const main = defineCommand({
@@ -40,6 +49,10 @@ export async function runCli() {
         valueHint: 'id',
         options: addons.map((addon) => addon.id),
       },
+      shadcnPreset: {
+        type: 'string',
+        description: 'The shadcn/ui preset to use (only valid when shadcn is selected).',
+      },
       yes: {
         type: 'boolean',
         description: 'Skip all prompts by accepting defaults.',
@@ -48,11 +61,22 @@ export async function runCli() {
     },
     async run({ args }) {
       try {
+        if (args.shadcnPreset !== undefined && args.addon !== 'shadcn') {
+          throw new Error(
+            'The --shadcn-preset flag can only be used when --addon shadcn is also provided.',
+          )
+        }
+
         intro('create-nosa')
 
         const templatesPath = resolve(import.meta.dir, '..', 'templates')
         const templateEntries = await readdir(templatesPath, { withFileTypes: true })
-        const templates: Array<Template> = []
+        const templates: Array<{
+          id: string
+          label: string
+          description: string
+          filesPath: string
+        }> = []
 
         for (const entry of templateEntries) {
           if (!entry.isDirectory()) {
@@ -180,7 +204,7 @@ export async function runCli() {
         const availableAddons = addons.filter((addon) =>
           addon.supportedTemplates.includes(selectedTemplate.id),
         )
-        let selectedAddonIds: Array<Addon['id']> = []
+        let selectedAddonIds: Array<(typeof addons)[number]['id']> = []
 
         if (args.addon !== undefined) {
           const addon = availableAddons.find((addon) => addon.id === args.addon)
@@ -213,9 +237,27 @@ export async function runCli() {
 
           selectedAddonIds = [...selectedAddons]
         }
-        const selectedAddons = availableAddons.filter((addon) =>
-          selectedAddonIds.includes(addon.id),
-        )
+
+        let shadcnPreset = args.shadcnPreset
+
+        if (selectedAddonIds.includes('shadcn') && !shadcnPreset && args.yes !== true) {
+          const presetResult = await text({
+            message: 'shadcn/ui preset to use',
+            placeholder: defaultShadcnPreset,
+            defaultValue: defaultShadcnPreset,
+          })
+
+          if (isCancel(presetResult)) {
+            cancel('Operation cancelled.')
+            process.exit(0)
+          }
+
+          shadcnPreset = presetResult
+        }
+
+        if (!shadcnPreset) {
+          shadcnPreset = defaultShadcnPreset
+        }
 
         const targetPath = resolve(process.cwd(), normalizedProjectName)
         const targetStats = await stat(targetPath).catch(() => undefined)
@@ -258,21 +300,17 @@ export async function runCli() {
         await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 
         const operation = spinner()
-        const initialCommitMessage = `feat: initial commit using ${selectedTemplate.id}`
 
-        for (const addon of selectedAddons) {
-          operation.start(`Applying ${addon.label}`)
+        if (selectedAddonIds.includes('shadcn')) {
+          operation.start('Applying shadcn/ui')
 
           try {
-            await addon.apply({
-              targetPath,
-              projectName: normalizedProjectName,
-              packageName: packageJson.name,
-              template: selectedTemplate,
-            })
-            operation.stop(`Applied ${addon.label}`)
+            await $`bunx --bun shadcn@latest init --template start --base radix --preset ${shadcnPreset} --yes --no-monorepo --silent button`
+              .cwd(targetPath)
+              .quiet()
+            operation.stop('Applied shadcn/ui')
           } catch (error) {
-            operation.error(`Failed to apply ${addon.label}`)
+            operation.error('Failed to apply shadcn/ui')
             throw error
           }
         }
@@ -287,14 +325,16 @@ export async function runCli() {
           throw error
         }
 
-        operation.start('Creating the initial git commit')
+        operation.start('Initializing git')
 
         try {
           await $`git init`.cwd(targetPath).quiet()
           await $`bunx --bun simple-git-hooks`.cwd(targetPath).quiet()
           await $`git add .`.cwd(targetPath).quiet()
-          await $`git commit -m ${initialCommitMessage}`.cwd(targetPath).quiet()
-          operation.stop('Created the initial git commit')
+          await $`git commit -m "feat: initial commit using ${selectedTemplate.id}"`
+            .cwd(targetPath)
+            .quiet()
+          operation.stop('Git initialized. Repo commited')
         } catch (error) {
           operation.error('Failed to create the initial git commit')
           throw error
