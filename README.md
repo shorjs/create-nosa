@@ -9,6 +9,8 @@ Scaffolding for nosa projects.
 - Bun `>=1.3.0`
 - Git
 
+Nix users can optionally run `nix develop` to enter a shell with Bun and Git.
+
 ## Usage
 
 With Bun:
