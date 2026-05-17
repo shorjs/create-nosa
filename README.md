@@ -60,3 +60,13 @@ May be provided in place of prompts
 | `--template <name>` | Select a template without prompting.    |
 | `--addon <id>`      | Select an add on without prompting.     |
 | `--yes` (`-y`)      | Skip all prompts by accepting defaults. |
+
+### The `start` Template
+
+Very lean starter template which includes:
+
+- **Framework**: [TanStack Start](https://tanstack.com/start) (React 19)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Tooling**: [Oxc](https://oxc.rs/) (`oxlint` + `oxfmt`) Fast linting and formatting
+- **Git Hooks**: `simple-git-hooks` + `nano-staged` for commit auto-formatting and linting
+- **Add-ons**: Optional `shadcn` addon for `shadcn/ui`
