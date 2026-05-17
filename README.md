@@ -34,6 +34,12 @@ bun create nosa@latest my-nosa-app --template start
 bunx --bun create-nosa@latest my-nosa-app --template start
 ```
 
+Add ons can also be selected without prompting.
+
+```bash
+bun create nosa@latest my-nosa-app --template start --addon shadcn
+```
+
 ## Templates
 
 | Name    | Description                      |
@@ -48,8 +54,9 @@ Other runners such as `npx`, `pnpm dlx`, and `yarn create` are not supported bec
 
 May be provided in place of prompts
 
-| Name                | Description                              |
-| :------------------ | :--------------------------------------- |
-| `--help` (`-h`)     | Display available flags.                 |
-| `--template <name>` | Select a template without prompting.     |
-| `--yes (`-y`)`      | Skip all prompts by accepting defaults.. |
+| Name                | Description                             |
+| :------------------ | :-------------------------------------- |
+| `--help` (`-h`)     | Display available flags.                |
+| `--template <name>` | Select a template without prompting.    |
+| `--addon <id>`      | Select an add on without prompting.     |
+| `--yes` (`-y`)      | Skip all prompts by accepting defaults. |

@@ -1,4 +1,4 @@
-import { cancel, intro, isCancel, outro, select, spinner, text } from '@clack/prompts'
+import { cancel, intro, isCancel, multiselect, outro, select, spinner, text } from '@clack/prompts'
 import { $, Glob } from 'bun'
 import { defineCommand, runMain } from 'citty'
 import { mkdir, readdir, stat } from 'node:fs/promises'
@@ -10,6 +10,7 @@ import {
   getFirstZodIssueMessage,
   toValidPackageName,
 } from './schemas'
+import { addons, type Addon, type Template } from './addons'
 
 const defaultProjectName = 'my-nosa-app'
 
@@ -33,6 +34,12 @@ export async function runCli() {
         description: 'Template name to use for the generated project.',
         valueHint: 'name',
       },
+      addon: {
+        type: 'enum',
+        description: 'Add on to apply without prompting.',
+        valueHint: 'id',
+        options: addons.map((addon) => addon.id),
+      },
       yes: {
         type: 'boolean',
         description: 'Skip all prompts by accepting defaults.',
@@ -45,12 +52,7 @@ export async function runCli() {
 
         const templatesPath = resolve(import.meta.dir, '..', 'templates')
         const templateEntries = await readdir(templatesPath, { withFileTypes: true })
-        const templates: Array<{
-          id: string
-          label: string
-          description: string
-          filesPath: string
-        }> = []
+        const templates: Array<Template> = []
 
         for (const entry of templateEntries) {
           if (!entry.isDirectory()) {
@@ -175,6 +177,46 @@ export async function runCli() {
           selectedTemplate = template
         }
 
+        const availableAddons = addons.filter((addon) =>
+          addon.supportedTemplates.includes(selectedTemplate.id),
+        )
+        let selectedAddonIds: Array<Addon['id']> = []
+
+        if (args.addon !== undefined) {
+          const addon = availableAddons.find((addon) => addon.id === args.addon)
+
+          if (!addon) {
+            const availableAddonIds = availableAddons.map((addon) => addon.id).join(', ')
+            throw new Error(
+              `Add on "${args.addon}" is not available for template "${selectedTemplate.id}".${
+                availableAddonIds ? ` Available add ons: ${availableAddonIds}.` : ''
+              }`,
+            )
+          }
+
+          selectedAddonIds = [addon.id]
+        } else if (args.yes !== true && availableAddons.length > 0) {
+          const selectedAddons = await multiselect({
+            message: 'Select add ons',
+            required: false,
+            options: availableAddons.map((addon) => ({
+              value: addon.id,
+              label: addon.label,
+              hint: addon.description,
+            })),
+          })
+
+          if (isCancel(selectedAddons)) {
+            cancel('Operation cancelled.')
+            process.exit(0)
+          }
+
+          selectedAddonIds = [...selectedAddons]
+        }
+        const selectedAddons = availableAddons.filter((addon) =>
+          selectedAddonIds.includes(addon.id),
+        )
+
         const targetPath = resolve(process.cwd(), normalizedProjectName)
         const targetStats = await stat(targetPath).catch(() => undefined)
 
@@ -218,6 +260,23 @@ export async function runCli() {
         const operation = spinner()
         const initialCommitMessage = `feat: initial commit using ${selectedTemplate.id}`
 
+        for (const addon of selectedAddons) {
+          operation.start(`Applying ${addon.label}`)
+
+          try {
+            await addon.apply({
+              targetPath,
+              projectName: normalizedProjectName,
+              packageName: packageJson.name,
+              template: selectedTemplate,
+            })
+            operation.stop(`Applied ${addon.label}`)
+          } catch (error) {
+            operation.error(`Failed to apply ${addon.label}`)
+            throw error
+          }
+        }
+
         operation.start('Installing dependencies with Bun')
 
         try {
@@ -242,6 +301,7 @@ export async function runCli() {
         }
 
         outro(`Created ${normalizedProjectName} using ${selectedTemplate.label}.
+Add ons: ${selectedAddonIds.length > 0 ? selectedAddonIds.join(', ') : 'none'}
 Next commands:
   cd ${normalizedProjectName}
   bun run dev`)
