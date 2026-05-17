@@ -23,3 +23,12 @@ export const templateMetadataSchema = z.object({
 export function getFirstZodIssueMessage(error: z.ZodError) {
   return error.issues[0]?.message ?? 'Invalid input'
 }
+
+export function toValidPackageName(projectName: string) {
+  return projectName
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/^[._]/, '')
+    .replace(/[^a-z\d\-~]+/g, '-')
+}

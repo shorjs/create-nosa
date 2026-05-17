@@ -4,7 +4,12 @@ import { defineCommand, runMain } from 'citty'
 import { mkdir, readdir, stat } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { z } from 'zod'
-import { templateMetadataSchema, projectNameSchema, getFirstZodIssueMessage } from './schemas'
+import {
+  templateMetadataSchema,
+  projectNameSchema,
+  getFirstZodIssueMessage,
+  toValidPackageName,
+} from './schemas'
 
 const defaultProjectName = 'my-nosa-app'
 
@@ -203,6 +208,13 @@ export async function runCli() {
           await Bun.write(targetFilePath, Bun.file(sourceFilePath))
         }
 
+        const packageJsonPath = join(targetPath, 'package.json')
+        const packageJson = await Bun.file(packageJsonPath).json()
+        const packageName = toValidPackageName(normalizedProjectName)
+
+        packageJson.name = packageName || 'app'
+        await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
+
         const operation = spinner()
         const initialCommitMessage = `feat: initial commit using ${selectedTemplate.id}`
 
@@ -230,8 +242,6 @@ export async function runCli() {
         }
 
         outro(`Created ${normalizedProjectName} using ${selectedTemplate.label}.
-Installed dependencies and committed the initial project.
-
 Next commands:
   cd ${normalizedProjectName}
   bun run dev`)
