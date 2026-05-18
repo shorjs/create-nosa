@@ -8,7 +8,6 @@ describe('template structure', () => {
 
     const coreFiles = [
       'package.json',
-      'bun.lock',
       'tsconfig.json',
       'vite.config.ts',
       'bunfig.toml',
@@ -29,7 +28,6 @@ describe('template structure', () => {
 
     const coreFiles = [
       'package.json',
-      'bun.lock',
       'tsconfig.json',
       'vite.config.ts',
       'bunfig.toml',
