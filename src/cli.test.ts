@@ -355,6 +355,7 @@ describe('template structure', () => {
       'components.json',
       'src/design-system/ui/button.tsx',
       'src/design-system/utils.ts',
+      'src/examples/shadcn-example.tsx',
     ])
 
     for (const filePath of baseFiles) {
@@ -400,6 +401,7 @@ describe('template structure', () => {
       'drizzle.config.ts',
       'src/data/db/index.ts',
       'src/data/db/schema.ts',
+      'src/examples/drizzle-example.tsx',
     ])
 
     for (const filePath of baseFiles) {
@@ -454,6 +456,8 @@ describe('template structure', () => {
       'src/data/db/schema.ts',
       'src/design-system/ui/button.tsx',
       'src/design-system/utils.ts',
+      'src/examples/drizzle-example.tsx',
+      'src/examples/shadcn-example.tsx',
     ])
 
     for (const filePath of baseFiles) {
@@ -503,6 +507,8 @@ describe('template structure', () => {
       'src/auth/auth.server.ts',
       'src/data/db/index.ts',
       'src/data/db/schema.ts',
+      'src/examples/betterauth-example.tsx',
+      'src/examples/drizzle-example.tsx',
       'src/routes/api/auth/$.ts',
     ])
 
@@ -562,6 +568,9 @@ describe('template structure', () => {
       'src/data/db/schema.ts',
       'src/design-system/ui/button.tsx',
       'src/design-system/utils.ts',
+      'src/examples/betterauth-example.tsx',
+      'src/examples/drizzle-example.tsx',
+      'src/examples/shadcn-example.tsx',
       'src/routes/api/auth/$.ts',
     ])
 

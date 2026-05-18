@@ -1,8 +1,8 @@
-import { Button } from '@/design-system/ui/button'
+import { BetterAuthExample } from '@/examples/betterauth-example'
+import { DrizzleExample } from '@/examples/drizzle-example'
+import { ShadcnExample } from '@/examples/shadcn-example'
 import { Welcome } from '@/welcome/welcome'
-import { authClient } from '@/auth/auth.client'
 import { createFileRoute } from '@tanstack/react-router'
-import { usersTable } from '@/data/db/schema'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/')({ component: RouteComponent })
@@ -67,49 +67,10 @@ function RouteComponent() {
           </div>
         </div>
         {activeExample === 'welcome' && <Welcome />}
-        {activeExample === 'shadcn' && (
-          <div>
-            <h2 className="font-medium">shadcn/ui example</h2>
-            <Button className="mt-2">Button</Button>
-          </div>
-        )}
-        {activeExample === 'drizzle' && (
-          <div>
-            <h2 className="font-medium">Drizzle example</h2>
-            <p>Schema ready: {usersTable.email.name}</p>
-          </div>
-        )}
+        {activeExample === 'shadcn' && <ShadcnExample />}
+        {activeExample === 'drizzle' && <DrizzleExample />}
         {activeExample === 'betterauth' && <BetterAuthExample />}
       </div>
-    </div>
-  )
-}
-
-function BetterAuthExample() {
-  const { data: session, isPending } = authClient.useSession()
-
-  if (isPending) {
-    return (
-      <div>
-        <h2 className="font-medium">Better Auth example</h2>
-        <p>Loading...</p>
-      </div>
-    )
-  }
-
-  if (session) {
-    return (
-      <div>
-        <h2 className="font-medium">Better Auth example</h2>
-        <p>Signed in as {session.user.email}</p>
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <h2 className="font-medium">Better Auth example</h2>
-      <p>You are not signed in.</p>
     </div>
   )
 }

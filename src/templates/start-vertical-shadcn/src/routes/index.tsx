@@ -1,4 +1,4 @@
-import { Button } from '@/design-system/ui/button'
+import { ShadcnExample } from '@/examples/shadcn-example'
 import { Welcome } from '@/welcome/welcome'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -41,12 +41,7 @@ function RouteComponent() {
           </div>
         </div>
         {activeExample === 'welcome' && <Welcome />}
-        {activeExample === 'shadcn' && (
-          <div>
-            <h2 className="font-medium">shadcn/ui example</h2>
-            <Button className="mt-2">Button</Button>
-          </div>
-        )}
+        {activeExample === 'shadcn' && <ShadcnExample />}
       </div>
     </div>
   )

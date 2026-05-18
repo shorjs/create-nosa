@@ -1,6 +1,6 @@
+import { DrizzleExample } from '@/examples/drizzle-example'
 import { Welcome } from '@/welcome/welcome'
 import { createFileRoute } from '@tanstack/react-router'
-import { usersTable } from '@/data/db/schema'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/')({ component: RouteComponent })
@@ -41,12 +41,7 @@ function RouteComponent() {
           </div>
         </div>
         {activeExample === 'welcome' && <Welcome />}
-        {activeExample === 'drizzle' && (
-          <div>
-            <h2 className="font-medium">Drizzle example</h2>
-            <p>Schema ready: {usersTable.email.name}</p>
-          </div>
-        )}
+        {activeExample === 'drizzle' && <DrizzleExample />}
       </div>
     </div>
   )
