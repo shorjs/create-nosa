@@ -71,6 +71,10 @@ Do not write optional code or config that only repeats a tool's default behavior
 - `@clack/prompts` for the interactive CLI
 - `Bun` for runtime, file system operations, and package management
 
+# Dependency Versions
+
+Keep every package dependency in `package.json` files pinned to an exact stable version. Do not use semver ranges, `latest`, or prerelease tags for dependencies or devDependencies unless the user explicitly asks for that exception.
+
 # Objective
 
 ## Compatibility
