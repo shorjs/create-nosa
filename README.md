@@ -62,9 +62,9 @@ Current option status:
 
 - **Template**: Start
 - **Structure**: Simple is available; Vertical is planned
-- **Add-ons**: shadcn/ui, Drizzle + PostgreSQL, and shadcn/ui + Drizzle + PostgreSQL are available for Simple; Better Auth is planned
+- **Add-ons**: All six combinations are available for Simple — shadcn/ui, Drizzle + PostgreSQL, Better Auth (auto-includes Drizzle), and their shadcn/ui variants
 
-Placeholder folders remain for planned combinations until their full static copies are added.
+Placeholder folders remain for planned Vertical combinations until their full static copies are added.
 
 ### Base
 
@@ -90,3 +90,11 @@ Drizzle + PostgreSQL adds:
 - **Driver**: `pg` through `drizzle-orm/node-postgres`
 - **Schema**: starter `users` table in `src/db/schema.ts`
 - **Commands**: `db:generate`, `db:migrate`, `db:push`, and `db:studio`
+
+Better Auth adds:
+
+- **Auth**: [Better Auth](https://better-auth.com) with email/password authentication
+- **Integration**: TanStack Start handler at `src/routes/api/auth/$.ts`
+- **Server functions**: session helpers in `src/lib/auth.functions.ts`
+- **Drizzle schema**: auto-generated auth tables in `src/db/auth-schema.ts`
+- **Dependencies**: `better-auth` with `tanstackStartCookies` plugin
