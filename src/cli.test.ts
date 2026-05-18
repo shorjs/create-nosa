@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test'
 import { join } from 'node:path'
 
 describe('template structure', () => {
-  it('keeps start-simple as the only complete template for now', async () => {
+  it('keeps placeholder templates installable for now', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
 
     expect(await Bun.file(join(templatesPath, 'start-simple', 'package.json')).exists()).toBe(true)
@@ -21,7 +21,12 @@ describe('template structure', () => {
       'start-vertical-shadcn-drizzle',
       'start-vertical-shadcn-drizzle-betterauth',
     ]) {
-      expect(await Bun.file(join(templatesPath, templateFolder, '.gitkeep')).exists()).toBe(true)
+      const packageJson = await Bun.file(join(templatesPath, templateFolder, 'package.json')).json()
+
+      expect(packageJson).toEqual({
+        name: templateFolder,
+      })
+      expect(await Bun.file(join(templatesPath, templateFolder, '.gitkeep')).exists()).toBe(false)
     }
   })
 })

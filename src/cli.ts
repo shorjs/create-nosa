@@ -157,33 +157,26 @@ export async function runCli() {
     }
 
     const packageJsonPath = join(targetPath, 'package.json')
-    const packageJsonFile = Bun.file(packageJsonPath)
-    const hasPackageJson = await packageJsonFile.exists()
+    const packageJson = await Bun.file(packageJsonPath).json()
+    const packageName = normalizedProjectName
+      .toLowerCase()
+      .replace(/\s+/g, '-')
+      .replace(/^[._]/, '')
+      .replace(/[^a-z\d\-~]+/g, '-')
 
-    if (hasPackageJson) {
-      const packageJson = await packageJsonFile.json()
-      const packageName = normalizedProjectName
-        .toLowerCase()
-        .replace(/\s+/g, '-')
-        .replace(/^[._]/, '')
-        .replace(/[^a-z\d\-~]+/g, '-')
-
-      packageJson.name = packageName || 'app'
-      await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
-    }
+    packageJson.name = packageName || 'app'
+    await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 
     const operation = spinner()
 
-    if (hasPackageJson) {
-      operation.start('Installing dependencies with Bun')
+    operation.start('Installing dependencies with Bun')
 
-      try {
-        await $`bun install`.cwd(targetPath).quiet()
-        operation.stop('Installed dependencies with Bun')
-      } catch (error) {
-        operation.error('Failed to install dependencies with Bun')
-        throw error
-      }
+    try {
+      await $`bun install`.cwd(targetPath).quiet()
+      operation.stop('Installed dependencies with Bun')
+    } catch (error) {
+      operation.error('Failed to install dependencies with Bun')
+      throw error
     }
 
     operation.start('Initializing git')
@@ -194,11 +187,6 @@ export async function runCli() {
     } catch (error) {
       operation.error('Failed to initialize git')
       throw error
-    }
-
-    if (!hasPackageJson) {
-      outro(`Created placeholder ${normalizedProjectName} using ${templateFolder}.`)
-      return
     }
 
     outro(`Created ${normalizedProjectName} using ${templateFolder}.
