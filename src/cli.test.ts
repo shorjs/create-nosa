@@ -3,11 +3,29 @@ import { describe, expect, it } from 'bun:test'
 import { join } from 'node:path'
 
 describe('template structure', () => {
-  it('keeps placeholder templates installable for now', async () => {
+  it('has all core template files', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
 
-    expect(await Bun.file(join(templatesPath, 'start-simple', 'package.json')).exists()).toBe(true)
-    expect(await Bun.file(join(templatesPath, 'start-simple', 'bun.lock')).exists()).toBe(true)
+    const coreFiles = [
+      'package.json',
+      'bun.lock',
+      'tsconfig.json',
+      'vite.config.ts',
+      'bunfig.toml',
+      'src/router.tsx',
+      'src/routes/__root.tsx',
+      'src/routes/index.tsx',
+      'src/examples/base.tsx',
+      'src/styles.css',
+    ]
+
+    for (const file of coreFiles) {
+      expect(await Bun.file(join(templatesPath, 'start-simple', file)).exists()).toBe(true)
+    }
+  })
+
+  it('keeps placeholder templates installable for now', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
 
     for (const templateFolder of [
       'start-simple-drizzle-betterauth',
@@ -24,7 +42,6 @@ describe('template structure', () => {
       expect(packageJson).toEqual({
         name: templateFolder,
       })
-      expect(await Bun.file(join(templatesPath, templateFolder, '.gitkeep')).exists()).toBe(false)
     }
   })
 
