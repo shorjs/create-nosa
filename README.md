@@ -58,7 +58,12 @@ The generated templates still include `bun.lock` and use Bun by default.
 
 Templates live in [`src/templates`](./src/templates). Each supported combination is intended to be a complete static folder that the CLI can copy directly.
 
-`start-simple` is the only complete template right now. The other template combination folders are placeholders until their full copies are added.
+Complete templates:
+
+- `start-simple`
+- `start-simple-shadcn`
+
+The other template combination folders are placeholders until their full copies are added.
 
 ### `start-simple`
 
@@ -68,3 +73,12 @@ Lean TanStack Start template which includes:
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Tooling**: [Oxc](https://oxc.rs/) with `oxlint` and `oxfmt`
 - **Git Hooks**: `simple-git-hooks` and `nano-staged`
+
+### `start-simple-shadcn`
+
+The simple Start template with the `shadcn/ui` add-on applied. It includes everything from `start-simple`, plus:
+
+- **UI**: `shadcn/ui` configuration
+- **Component**: a generated `Button` component
+- **Utilities**: `cn()` with `clsx` and `tailwind-merge`
+- **Theme**: shadcn Tailwind CSS variables and Roboto font setup
