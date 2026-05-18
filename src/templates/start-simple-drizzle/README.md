@@ -30,6 +30,25 @@ If you prefer not to use Tailwind CSS:
 3. Remove `tailwindcss()` from the plugins array in `vite.config.ts`
 4. Uninstall the packages: `bun install @tailwindcss/vite tailwindcss -D`
 
+## Database
+
+This project uses [Drizzle ORM](https://orm.drizzle.team/) with PostgreSQL.
+
+Set `DATABASE_URL` in `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Useful commands:
+
+```bash
+bun run db:generate
+bun run db:migrate
+bun run db:push
+bun run db:studio
+```
+
 ## Routing
 
 This project uses [TanStack Router](https://tanstack.com/router) with file-based routing. Routes are managed as files in `src/routes`.

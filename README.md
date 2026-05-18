@@ -33,7 +33,7 @@ yarn dlx create nosa
 pnpm dlx create nosa
 ```
 
-The generated templates still include `bun.lock` and use Bun by default.
+The generated templates still include `bun.lock`, include `bunfig.toml`, and use Bun by default.
 
 ## Interactive Flow
 
@@ -58,14 +58,15 @@ The generated templates still include `bun.lock` and use Bun by default.
 
 Templates live in [`src/templates`](./src/templates). Each supported combination is intended to be a complete static folder that the CLI can copy directly.
 
-Complete templates:
+Current option status:
 
-- `start-simple`
-- `start-simple-shadcn`
+- **Template**: Start
+- **Structure**: Simple is available; Vertical is planned
+- **Add-ons**: shadcn/ui and Drizzle + PostgreSQL are available for Simple; Better Auth is planned
 
-The other template combination folders are placeholders until their full copies are added.
+Placeholder folders remain for planned combinations until their full static copies are added.
 
-### `start-simple`
+### Base
 
 Lean TanStack Start template which includes:
 
@@ -74,11 +75,18 @@ Lean TanStack Start template which includes:
 - **Tooling**: [Oxc](https://oxc.rs/) with `oxlint` and `oxfmt`
 - **Git Hooks**: `simple-git-hooks` and `nano-staged`
 
-### `start-simple-shadcn`
+### Add-ons
 
-The simple Start template with the `shadcn/ui` add-on applied. It includes everything from `start-simple`, plus:
+`shadcn/ui` adds:
 
 - **UI**: `shadcn/ui` configuration
 - **Component**: a generated `Button` component
 - **Utilities**: `cn()` with `clsx` and `tailwind-merge`
 - **Theme**: shadcn Tailwind CSS variables and Roboto font setup
+
+Drizzle + PostgreSQL adds:
+
+- **ORM**: [Drizzle ORM](https://orm.drizzle.team/) configured for PostgreSQL
+- **Driver**: `pg` through `drizzle-orm/node-postgres`
+- **Schema**: starter `users` table in `src/db/schema.ts`
+- **Commands**: `db:generate`, `db:migrate`, `db:push`, and `db:studio`
