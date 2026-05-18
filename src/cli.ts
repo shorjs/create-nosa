@@ -189,8 +189,10 @@ export async function runCli() {
       throw error
     }
 
-    outro(`Created ${normalizedProjectName} using ${templateFolder}.
-Add-ons: ${addons.length > 0 ? addons.join(', ') : 'none'}
+    outro(`Created ${normalizedProjectName}
+${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
+Read README.md to get started.
+
 Next commands:
   cd ${normalizedProjectName}
   bun run dev`)

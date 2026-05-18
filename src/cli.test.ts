@@ -67,6 +67,7 @@ describe('template structure', () => {
       ),
     )
     const shadcnChangedFiles = [
+      'README.md',
       'bun.lock',
       'package.json',
       'src/routes/index.tsx',
