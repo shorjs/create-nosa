@@ -3,7 +3,7 @@ import { describe, expect, it } from 'bun:test'
 import { join } from 'node:path'
 
 describe('template structure', () => {
-  it('has all core template files', async () => {
+  it('has all core template files for start-simple', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
 
     const coreFiles = [
@@ -24,22 +24,27 @@ describe('template structure', () => {
     }
   })
 
-  it('keeps placeholder templates installable for now', async () => {
+  it('has all core template files for start-vertical', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
 
-    for (const templateFolder of [
-      'start-vertical',
-      'start-vertical-shadcn',
-      'start-vertical-drizzle',
-      'start-vertical-drizzle-betterauth',
-      'start-vertical-shadcn-drizzle',
-      'start-vertical-shadcn-drizzle-betterauth',
-    ]) {
-      const packageJson = await Bun.file(join(templatesPath, templateFolder, 'package.json')).json()
+    const coreFiles = [
+      'package.json',
+      'bun.lock',
+      'tsconfig.json',
+      'vite.config.ts',
+      'bunfig.toml',
+      'src/router.tsx',
+      'src/routes/__root.tsx',
+      'src/routes/index.tsx',
+      'src/routes/counter.tsx',
+      'src/welcome/welcome.tsx',
+      'src/counter/counter.tsx',
+      'src/counter/counter.functions.ts',
+      'src/styles.css',
+    ]
 
-      expect(packageJson).toEqual({
-        name: templateFolder,
-      })
+    for (const file of coreFiles) {
+      expect(await Bun.file(join(templatesPath, 'start-vertical', file)).exists()).toBe(true)
     }
   })
 
@@ -310,6 +315,264 @@ describe('template structure', () => {
       }
 
       expect(await Bun.file(join(shadcnBetterauthTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-vertical-shadcn aligned with start-vertical except shadcn files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-vertical')
+    const variantTemplatePath = join(templatesPath, 'start-vertical-shadcn')
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const variantFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: variantTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const changedFiles = [
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+      'src/styles.css',
+    ]
+
+    expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
+      'components.json',
+      'src/design-system/ui/button.tsx',
+      'src/design-system/utils.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(variantFiles.has(filePath)).toBe(true)
+
+      if (changedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(variantTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-vertical-drizzle aligned with start-vertical except drizzle files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-vertical')
+    const variantTemplatePath = join(templatesPath, 'start-vertical-drizzle')
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const variantFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: variantTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const changedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
+
+    expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
+      '.env.example',
+      'drizzle.config.ts',
+      'src/data/db/index.ts',
+      'src/data/db/schema.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(variantFiles.has(filePath)).toBe(true)
+
+      if (changedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(variantTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-vertical-shadcn-drizzle aligned with start-vertical except shadcn and drizzle files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-vertical')
+    const variantTemplatePath = join(templatesPath, 'start-vertical-shadcn-drizzle')
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const variantFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: variantTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const changedFiles = [
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+      'src/styles.css',
+    ]
+
+    expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
+      '.env.example',
+      'components.json',
+      'drizzle.config.ts',
+      'src/data/db/index.ts',
+      'src/data/db/schema.ts',
+      'src/design-system/ui/button.tsx',
+      'src/design-system/utils.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(variantFiles.has(filePath)).toBe(true)
+
+      if (changedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(variantTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-vertical-drizzle-betterauth aligned with start-vertical except drizzle and betterauth files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-vertical')
+    const variantTemplatePath = join(templatesPath, 'start-vertical-drizzle-betterauth')
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const variantFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: variantTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const changedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
+
+    expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
+      '.env.example',
+      'drizzle.config.ts',
+      'src/auth/auth-schema.ts',
+      'src/auth/auth.client.ts',
+      'src/auth/auth.functions.ts',
+      'src/auth/auth.server.ts',
+      'src/data/db/index.ts',
+      'src/data/db/schema.ts',
+      'src/routes/api/auth/$.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(variantFiles.has(filePath)).toBe(true)
+
+      if (changedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(variantTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-vertical-shadcn-drizzle-betterauth aligned with start-vertical except shadcn, drizzle and betterauth files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-vertical')
+    const variantTemplatePath = join(templatesPath, 'start-vertical-shadcn-drizzle-betterauth')
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const variantFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: variantTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const changedFiles = [
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+      'src/styles.css',
+    ]
+
+    expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
+      '.env.example',
+      'components.json',
+      'drizzle.config.ts',
+      'src/auth/auth-schema.ts',
+      'src/auth/auth.client.ts',
+      'src/auth/auth.functions.ts',
+      'src/auth/auth.server.ts',
+      'src/data/db/index.ts',
+      'src/data/db/schema.ts',
+      'src/design-system/ui/button.tsx',
+      'src/design-system/utils.ts',
+      'src/routes/api/auth/$.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(variantFiles.has(filePath)).toBe(true)
+
+      if (changedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(variantTemplatePath, filePath)).text()).toBe(
         await Bun.file(join(baseTemplatePath, filePath)).text(),
       )
     }

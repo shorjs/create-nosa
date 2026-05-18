@@ -1,0 +1,16 @@
+# Finder (MacOS) folder config
+.DS_Store
+
+# dependencies (bun install)
+node_modules
+
+# build output
+.output
+dist
+
+# env
+.env
+*.local
+
+# cache
+.tanstack
