@@ -28,8 +28,6 @@ describe('template structure', () => {
     const templatesPath = join(import.meta.dir, 'templates')
 
     for (const templateFolder of [
-      'start-simple-drizzle-betterauth',
-      'start-simple-shadcn-drizzle-betterauth',
       'start-vertical',
       'start-vertical-shadcn',
       'start-vertical-drizzle',
@@ -192,6 +190,125 @@ describe('template structure', () => {
       }
 
       expect(await Bun.file(join(shadcnDrizzleTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-simple-drizzle-betterauth aligned with start-simple except drizzle and betterauth files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-simple')
+    const betterauthTemplatePath = join(templatesPath, 'start-simple-drizzle-betterauth')
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const betterauthFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: betterauthTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const betterauthChangedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
+
+    expect([...betterauthFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
+      '.env.example',
+      'drizzle.config.ts',
+      'src/db/auth-schema.ts',
+      'src/db/index.ts',
+      'src/db/schema.ts',
+      'src/examples/betterauth.tsx',
+      'src/examples/drizzle.tsx',
+      'src/lib/auth-client.ts',
+      'src/lib/auth.functions.ts',
+      'src/lib/auth.ts',
+      'src/routes/api/auth/$.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(betterauthFiles.has(filePath)).toBe(true)
+
+      if (betterauthChangedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(betterauthTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-simple-shadcn-drizzle-betterauth aligned with start-simple except shadcn, drizzle and betterauth files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-simple')
+    const shadcnBetterauthTemplatePath = join(
+      templatesPath,
+      'start-simple-shadcn-drizzle-betterauth',
+    )
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const shadcnBetterauthFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: shadcnBetterauthTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const shadcnBetterauthChangedFiles = [
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+      'src/styles.css',
+    ]
+
+    expect(
+      [...shadcnBetterauthFiles].filter((filePath) => !baseFiles.has(filePath)).sort(),
+    ).toEqual([
+      '.env.example',
+      'components.json',
+      'drizzle.config.ts',
+      'src/components/ui/button.tsx',
+      'src/db/auth-schema.ts',
+      'src/db/index.ts',
+      'src/db/schema.ts',
+      'src/examples/betterauth.tsx',
+      'src/examples/drizzle.tsx',
+      'src/examples/shadcn.tsx',
+      'src/lib/auth-client.ts',
+      'src/lib/auth.functions.ts',
+      'src/lib/auth.ts',
+      'src/lib/utils.ts',
+      'src/routes/api/auth/$.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(shadcnBetterauthFiles.has(filePath)).toBe(true)
+
+      if (shadcnBetterauthChangedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(shadcnBetterauthTemplatePath, filePath)).text()).toBe(
         await Bun.file(join(baseTemplatePath, filePath)).text(),
       )
     }
