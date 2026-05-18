@@ -1,5 +1,15 @@
 import { $, Glob } from 'bun'
-import { cancel, intro, isCancel, multiselect, outro, select, spinner, text } from '@clack/prompts'
+import {
+  cancel,
+  intro,
+  isCancel,
+  log,
+  multiselect,
+  outro,
+  select,
+  spinner,
+  text,
+} from '@clack/prompts'
 import { mkdir, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
 
@@ -189,9 +199,10 @@ export async function runCli() {
       throw error
     }
 
+    log.warn('Read README.md to get started (set up your environment variables first).')
+
     outro(`Created ${normalizedProjectName}
 ${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
-Read README.md to get started.
 
 Next commands:
   cd ${normalizedProjectName}

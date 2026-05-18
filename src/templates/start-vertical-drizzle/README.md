@@ -7,7 +7,10 @@ Welcome to your new TanStack Start app!
 # Getting Started
 
 ```bash
+cp .env.example .env
+# Fill in your DATABASE_URL in .env, then:
 bun install
+bun run db:push
 bun run dev
 ```
 
