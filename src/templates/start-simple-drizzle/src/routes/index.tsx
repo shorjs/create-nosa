@@ -16,10 +16,26 @@ function RouteComponent() {
           <p>You may now add components and start building.</p>
           <p>Examples live in `src/examples` so you can remove them when you start.</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <button type="button" onClick={() => setActiveExample('base')}>
+            <button
+              type="button"
+              onClick={() => setActiveExample('base')}
+              className={
+                activeExample === 'base'
+                  ? 'cursor-pointer underline underline-offset-2'
+                  : 'cursor-pointer hover:underline hover:underline-offset-2'
+              }
+            >
               Base
             </button>
-            <button type="button" onClick={() => setActiveExample('drizzle')}>
+            <button
+              type="button"
+              onClick={() => setActiveExample('drizzle')}
+              className={
+                activeExample === 'drizzle'
+                  ? 'cursor-pointer underline underline-offset-2'
+                  : 'cursor-pointer hover:underline hover:underline-offset-2'
+              }
+            >
               Drizzle
             </button>
           </div>
