@@ -52,7 +52,7 @@
   },
   "nano-staged": {
     "*": "bun run fmt --no-error-on-unmatched-pattern",
-    "*.{js,jsx,ts,tsx,mjs,cjs}": "bun run lint:fix"
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "bun run lint:fix --no-error-on-unmatched-pattern"
   },
   "engines": {
     "bun": ">=1.3.0"
