@@ -1,35 +1,95 @@
 # Project Overview
 
-`create-nosa` is the Bun first project scaffolder for nosa.
+`create-nosa` is a project scaffolder for nosa.
 
-The primary target is Bun projects. Non Bun runtimes or package managers may work where compatible, but they are not the main concern.
+Minimal usage:
 
-The first flow should collect
+```bash
+bun create nosa
+```
 
-- project name,
-- template,
-- add ons,
-- run bun install,
-- init git,
-- generate the project and print the next commands to start development.
+## The interactive flow
+
+```text
+? Project name
+  my-nosa-app
+
+? Select a template
+  Start
+
+? Select codebase structure
+  Simple
+  Vertical
+
+? Select add-ons
+  [ ] shadcn/ui
+  [ ] Drizzle + PostgreSQL
+  [ ] Better Auth
+```
+
+## Selection Tree
+
+```text
+create-nosa
+`- Project name
+   `- Template
+      `- Start
+         `- Codebase structure
+            |- Simple
+            |  `- Add-ons
+            |     |- None
+            |     |- shadcn/ui
+            |     |- Drizzle + PostgreSQL
+            |     |  `- Optional: Better Auth
+            |     |- shadcn/ui + Drizzle + PostgreSQL
+            |     |  `- Optional: Better Auth
+            |     `- Better Auth
+            |        `- Auto-includes Drizzle + PostgreSQL
+            |
+            `- Vertical
+               `- Add-ons
+                  |- None
+                  |- shadcn/ui
+                  |- Drizzle + PostgreSQL
+                  |  `- Optional: Better Auth
+                  |- shadcn/ui + Drizzle + PostgreSQL
+                  |  `- Optional: Better Auth
+                  `- Better Auth
+                     `- Auto-includes Drizzle + PostgreSQL
+```
 
 # Instructions
 
-Always refer to these global skills first if any:
+The codebase should stay lean.
 
-- `bun`
-- `bun-strict`
-
-If above skills are not found, suggest and encourage to install it first.
-
-The CLI should stay lean, interactive, and easy to extend.
-
-Use modern CLI building blocks where they reduce code and improve DX. Prefer `@clack/prompts` for the interactive flow, Bun APIs for running commands, and standard filesystem utilities for copying and editing files. Add a CLI framework only when flags, help output, or non interactive usage become worth supporting.
-
-Avoid `node:*` imports when Bun has a native API for the same job. Use Bun APIs for file reads, file writes, command execution, runtime behavior, and package manager workflows. Use `node:*` only for gaps that Bun documents as Node-compatible usage, such as directory traversal, directory creation, stats, and path manipulation.
-
-Prefer inline implementation first over premature abstraction. Keep logic in place unless splitting it out is specifically requested or the complexity is already concrete.
+Prefer inline code, logic, functions, and files first. Keep logic in place unless splitting it out is specifically requested, the complexity is already concrete, or the same implementation is being used more than two times.
 
 Do not write optional code or config that only repeats a tool's default behavior. Prefer omitted defaults over explicit self-documenting settings unless changing behavior, correctness, or a user request requires it.
 
-Templates should be simple to reason about. Start with a small set of base templates, then apply selected add ons on top instead of maintaining many duplicated template variants.
+# Stacks
+
+- `@clack/prompts` for the interactive CLI
+- `Bun` for runtime, file system operations, and package management
+
+# Objective
+
+## Compatibility
+
+Although we are developing `create-nosa` in a Bun environment and we are favoring on first class support of `bun`, the output codebase should be compatible with both Bun and Other Node supported package manager.
+
+It means usage below should also be valid for users of others package manager
+
+```bash
+# npx
+npx create nosa
+# yarn dlx
+yarn dlx create nosa
+# pnpm dlx
+pnpm dlx create nosa
+```
+
+Those invocation methods are supported, but every generated template still uses Bun because each template includes a `bun.lock` file. User can switch to their preferred package manager by manually inferring `bun.lock` to their preferred package manager lock file and installing dependencies with it.
+
+## Implementation
+
+Use full template copies. Each supported combination of base template, codebase structure, and add-ons is a complete static folder shipped with the CLI.

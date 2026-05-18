@@ -3,5 +3,5 @@ import { defineConfig } from 'oxfmt'
 export default defineConfig({
   semi: false,
   singleQuote: true,
-  ignorePatterns: ['templates/**'],
+  ignorePatterns: ['src/templates/**'],
 })

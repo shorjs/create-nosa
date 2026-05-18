@@ -2,7 +2,7 @@
 
 Scaffolding for nosa projects.
 
-`create-nosa` is a Bun first project generator. It runs an interactive setup flow, copies a selected template, installs dependencies with Bun, initializes git, and creates an initial commit.
+`create-nosa` is a Bun first project generator. It runs an interactive setup flow, copies a selected static template folder, installs dependencies with Bun when the selected template is complete, initializes git, and prints the next commands.
 
 ## Requirements
 
@@ -25,48 +25,46 @@ You can also run the package directly:
 bunx --bun create-nosa@latest
 ```
 
-The CLI currently runs in interactive mode, but you can also specify your project name and template with command line arguments.
+Other package runners can invoke the CLI too:
 
 ```bash
-# bun
-bun create nosa@latest my-nosa-app --template start
-# bunx
-bunx --bun create-nosa@latest my-nosa-app --template start
+npx create nosa
+yarn dlx create nosa
+pnpm dlx create nosa
 ```
 
-Add ons can also be selected without prompting.
+The generated templates still include `bun.lock` and use Bun by default.
 
-```bash
-bun create nosa@latest my-nosa-app --template start --addon shadcn
+## Interactive Flow
+
+```text
+? Project name
+  my-nosa-app
+
+? Select a template
+  Start
+
+? Select codebase structure
+  Simple
+  Vertical
+
+? Select add-ons
+  [ ] shadcn/ui
+  [ ] Drizzle + PostgreSQL
+  [ ] Better Auth
 ```
 
 ## Templates
 
-| Name    | Description                      |
-| :------ | :------------------------------- |
-| `start` | TanStack Start with Tailwind CSS |
+Templates live in [`src/templates`](./src/templates). Each supported combination is intended to be a complete static folder that the CLI can copy directly.
 
-Templates live in [`templates`](./templates). Each template has a `meta.json` file for the prompt label and a `files` directory containing the generated project files.
+`start-simple` is the only complete template right now. The other template combination folders are placeholders until their full copies are added.
 
-Other runners such as `npx`, `pnpm dlx`, and `yarn create` are not supported because the CLI uses Bun runtime APIs.
+### `start-simple`
 
-## CLI Flags
+Lean TanStack Start template which includes:
 
-May be provided in place of prompts
-
-| Name                | Description                             |
-| :------------------ | :-------------------------------------- |
-| `--help` (`-h`)     | Display available flags.                |
-| `--template <name>` | Select a template without prompting.    |
-| `--addon <id>`      | Select an add on without prompting.     |
-| `--yes` (`-y`)      | Skip all prompts by accepting defaults. |
-
-### The `start` Template
-
-Very lean starter template which includes:
-
-- **Framework**: [TanStack Start](https://tanstack.com/start) (React 19)
+- **Framework**: [TanStack Start](https://tanstack.com/start) with React 19
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Tooling**: [Oxc](https://oxc.rs/) (`oxlint` + `oxfmt`) Fast linting and formatting
-- **Git Hooks**: `simple-git-hooks` + `nano-staged` for commit auto-formatting and linting
-- **Add-ons**: Optional `shadcn` addon for `shadcn/ui`
+- **Tooling**: [Oxc](https://oxc.rs/) with `oxlint` and `oxfmt`
+- **Git Hooks**: `simple-git-hooks` and `nano-staged`

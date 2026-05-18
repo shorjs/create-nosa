@@ -22,8 +22,7 @@
   },
   "files": [
     "index.ts",
-    "src",
-    "templates"
+    "src"
   ],
   "type": "module",
   "scripts": {
@@ -36,9 +35,7 @@
     "prepare": "bun run simple-git-hooks"
   },
   "dependencies": {
-    "@clack/prompts": "^1.4.0",
-    "citty": "^0.2.2",
-    "zod": "^4.4.3"
+    "@clack/prompts": "^1.4.0"
   },
   "devDependencies": {
     "@types/bun": "latest",
