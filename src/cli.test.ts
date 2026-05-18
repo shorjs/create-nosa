@@ -67,6 +67,13 @@ describe('create-nosa cli', () => {
     // Check if shadcn dependency was added (e.g., class-variance-authority, clsx, tailwind-merge, or simply components.json)
     const componentsJsonFile = Bun.file(join(targetPath, 'components.json'))
     expect(await componentsJsonFile.exists()).toBe(true)
+
+    const indexRoute = await Bun.file(join(targetPath, 'src/routes/index.tsx')).text()
+    expect(indexRoute).toContain("import { Button } from '@/components/ui/button'")
+    expect(indexRoute).toContain("export const Route = createFileRoute('/')({ component: App })")
+    expect(indexRoute).toContain('Project ready!')
+    expect(indexRoute).toContain('We&apos;ve already added the button component for you.')
+    expect(indexRoute).toContain('<Button className="mt-2">Button</Button>')
   }, 60000)
   it('errors when an invalid project name is provided', async () => {
     const projectName = 'a/b'

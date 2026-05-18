@@ -22,6 +22,28 @@ const addons = [
 
 const defaultProjectName = 'my-nosa-app'
 const defaultShadcnPreset = 'nova'
+const shadcnDemoRoute = `import { createFileRoute } from '@tanstack/react-router'
+import { Button } from '@/components/ui/button'
+
+export const Route = createFileRoute('/')({ component: App })
+
+export function App() {
+  return (
+    <div className="flex min-h-svh p-6">
+      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
+        <div>
+          <h1 className="font-medium">Project ready!</h1>
+          <p>You may now add components and start building.</p>
+          <p>We&apos;ve already added the button component for you.</p>
+          <Button className="mt-2">Button</Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default App
+`
 
 export async function runCli() {
   const main = defineCommand({
@@ -308,6 +330,7 @@ export async function runCli() {
             await $`bunx --bun shadcn@latest init --template start --base radix --preset ${shadcnPreset} --yes --no-monorepo --silent button`
               .cwd(targetPath)
               .quiet()
+            await Bun.write(join(targetPath, 'src', 'routes', 'index.tsx'), shadcnDemoRoute)
             operation.stop('Applied shadcn/ui')
           } catch (error) {
             operation.error('Failed to apply shadcn/ui')
