@@ -17,7 +17,7 @@
     "utils": "@/design-system/utils",
     "ui": "@/design-system/ui",
     "lib": "@/design-system",
-    "hooks": "@/hooks"
+    "hooks": "@/design-system/hooks"
   },
   "menuColor": "default-translucent",
   "menuAccent": "subtle",
