@@ -1,3 +1,4 @@
+import { BaseExample } from '@/examples/base'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({ component: RouteComponent })
@@ -9,9 +10,9 @@ function RouteComponent() {
         <div>
           <h1 className="font-medium">Project ready!</h1>
           <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <button className="mt-2">Button</button>
+          <p>Examples live in `src/examples` so you can remove them when you start.</p>
         </div>
+        <BaseExample />
       </div>
     </div>
   )

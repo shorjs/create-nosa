@@ -1,4 +1,5 @@
 import { BaseExample } from '@/examples/base'
+import { DrizzleExample } from '@/examples/drizzle'
 import { ShadcnExample } from '@/examples/shadcn'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
@@ -6,7 +7,7 @@ import { useState } from 'react'
 export const Route = createFileRoute('/')({ component: RouteComponent })
 
 function RouteComponent() {
-  const [activeExample, setActiveExample] = useState<'base' | 'shadcn'>('base')
+  const [activeExample, setActiveExample] = useState<'base' | 'shadcn' | 'drizzle'>('base')
 
   return (
     <div className="flex min-h-svh p-6">
@@ -22,10 +23,14 @@ function RouteComponent() {
             <button type="button" onClick={() => setActiveExample('shadcn')}>
               shadcn/ui
             </button>
+            <button type="button" onClick={() => setActiveExample('drizzle')}>
+              Drizzle
+            </button>
           </div>
         </div>
         {activeExample === 'base' && <BaseExample />}
         {activeExample === 'shadcn' && <ShadcnExample />}
+        {activeExample === 'drizzle' && <DrizzleExample />}
       </div>
     </div>
   )

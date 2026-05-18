@@ -62,7 +62,7 @@ Current option status:
 
 - **Template**: Start
 - **Structure**: Simple is available; Vertical is planned
-- **Add-ons**: shadcn/ui and Drizzle + PostgreSQL are available for Simple; Better Auth is planned
+- **Add-ons**: shadcn/ui, Drizzle + PostgreSQL, and shadcn/ui + Drizzle + PostgreSQL are available for Simple; Better Auth is planned
 
 Placeholder folders remain for planned combinations until their full static copies are added.
 

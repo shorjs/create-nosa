@@ -11,7 +11,6 @@ describe('template structure', () => {
 
     for (const templateFolder of [
       'start-simple-drizzle-betterauth',
-      'start-simple-shadcn-drizzle',
       'start-simple-shadcn-drizzle-betterauth',
       'start-vertical',
       'start-vertical-shadcn',
@@ -62,6 +61,7 @@ describe('template structure', () => {
     expect([...shadcnFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       'components.json',
       'src/components/ui/button.tsx',
+      'src/examples/shadcn.tsx',
       'src/lib/utils.ts',
     ])
 
@@ -101,13 +101,14 @@ describe('template structure', () => {
         }),
       ),
     )
-    const drizzleChangedFiles = ['README.md', 'bun.lock', 'package.json', 'tsconfig.json']
+    const drizzleChangedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
 
     expect([...drizzleFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
       'drizzle.config.ts',
       'src/db/index.ts',
       'src/db/schema.ts',
+      'src/examples/drizzle.tsx',
     ])
 
     for (const filePath of baseFiles) {
@@ -118,6 +119,62 @@ describe('template structure', () => {
       }
 
       expect(await Bun.file(join(drizzleTemplatePath, filePath)).text()).toBe(
+        await Bun.file(join(baseTemplatePath, filePath)).text(),
+      )
+    }
+  })
+
+  it('keeps start-simple-shadcn-drizzle aligned with start-simple except shadcn and drizzle files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const baseTemplatePath = join(templatesPath, 'start-simple')
+    const shadcnDrizzleTemplatePath = join(templatesPath, 'start-simple-shadcn-drizzle')
+    const files = new Glob('**/*')
+    const baseFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: baseTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const shadcnDrizzleFiles = new Set(
+      await Array.fromAsync(
+        files.scan({
+          cwd: shadcnDrizzleTemplatePath,
+          dot: true,
+          onlyFiles: true,
+        }),
+      ),
+    )
+    const shadcnDrizzleChangedFiles = [
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+      'src/styles.css',
+    ]
+
+    expect([...shadcnDrizzleFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
+      '.env.example',
+      'components.json',
+      'drizzle.config.ts',
+      'src/components/ui/button.tsx',
+      'src/db/index.ts',
+      'src/db/schema.ts',
+      'src/examples/drizzle.tsx',
+      'src/examples/shadcn.tsx',
+      'src/lib/utils.ts',
+    ])
+
+    for (const filePath of baseFiles) {
+      expect(shadcnDrizzleFiles.has(filePath)).toBe(true)
+
+      if (shadcnDrizzleChangedFiles.includes(filePath)) {
+        continue
+      }
+
+      expect(await Bun.file(join(shadcnDrizzleTemplatePath, filePath)).text()).toBe(
         await Bun.file(join(baseTemplatePath, filePath)).text(),
       )
     }
