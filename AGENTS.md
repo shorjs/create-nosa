@@ -97,3 +97,7 @@ Those invocation methods are supported, but every generated template still uses 
 ## Implementation
 
 Use full template copies. Each supported combination of base template, codebase structure, and add-ons is a complete static folder shipped with the CLI.
+
+## Generated Template File Naming
+
+Templates include a basic `src/AGENTS.md`.

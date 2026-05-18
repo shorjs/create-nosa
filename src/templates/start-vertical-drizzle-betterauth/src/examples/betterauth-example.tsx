@@ -1,4 +1,4 @@
-import { authClient } from '@/auth/auth.client'
+import { authClient } from '@/auth/auth-client'
 
 export function BetterAuthExample() {
   const { data: session, isPending } = authClient.useSession()
