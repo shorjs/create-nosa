@@ -33,7 +33,7 @@ yarn dlx create nosa
 pnpm dlx create nosa
 ```
 
-The generated templates still include `bun.lock`, include `bunfig.toml`, and use Bun by default.
+The generated templates include `bunfig.toml` and use Bun by default. A fresh `bun.lock` is generated during `bun install`.
 
 ## Interactive Flow
 
@@ -61,10 +61,27 @@ Templates live in [`src/templates`](./src/templates). Each supported combination
 Current option status:
 
 - **Template**: Start
-- **Structure**: Simple is available; Vertical is planned
-- **Add-ons**: All six combinations are available for Simple — shadcn/ui, Drizzle + PostgreSQL, Better Auth (auto-includes Drizzle), and their shadcn/ui variants
+- **Structure**: Simple and Vertical
+- **Add-ons**: All six combinations available for both — shadcn/ui, Drizzle + PostgreSQL, Better Auth (auto-includes Drizzle), and their shadcn/ui variants
 
-Placeholder folders remain for planned Vertical combinations until their full static copies are added.
+## Vertical Philosophy
+
+Code is grouped by domain rather than by technical layer. Each feature lives in its own directory so you can own it, evolve it, and eventually throw it away.
+
+```
+src/
+  auth/             # Authentication domain
+  billing/          # Billing domain
+  billing/          # billing plan name vs.
+  teams/            # Teams and collaboration domain
+  data/             # Database access
+  design-system/    # Shared UI primitives
+  routes/           # Route definitions (required by TanStack Router)
+  router.tsx        # Router configuration
+  styles.css        # Global styles
+```
+
+Each directory owns its components, hooks, server functions, types, and schemas. Add new verticals by creating a directory at `src/`. Remove a feature by deleting its directory.
 
 ### Base
 
