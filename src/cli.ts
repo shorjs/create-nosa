@@ -14,6 +14,51 @@ import { mkdir, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
 
 export async function runCli() {
+  const args = process.argv.slice(2)
+  let flagName: string | undefined
+  let flagTemplate: string | undefined
+  let flagStructure: string | undefined
+  let flagAddons: string | undefined
+
+  for (let i = 0; i < args.length; i++) {
+    switch (args[i]) {
+      case '--name':
+      case '-n':
+        flagName = args[++i]
+        break
+      case '--template':
+      case '-t':
+        flagTemplate = args[++i]
+        break
+      case '--structure':
+      case '-s':
+        flagStructure = args[++i]
+        break
+      case '--addons':
+      case '-a':
+        flagAddons = args[++i]
+        break
+      case '--help':
+      case '-h':
+        console.log(`create-nosa - Project scaffolder for nosa
+
+Usage:
+  bun create nosa [options]
+
+Options:
+  -n, --name <name>         Project name (default: my-nosa-app)
+  -t, --template <template> Template name (default: start)
+  -s, --structure <type>    Codebase structure (simple, vertical)
+  -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth)
+  -h, --help                Show this help message
+
+Examples:
+  bun create nosa --name my-app --structure simple
+  bun create nosa -n my-app -s vertical -a shadcn,drizzle`)
+        process.exit(0)
+    }
+  }
+
   try {
     const defaultProjectName = 'my-nosa-app'
     const templateFolders = new Set([
@@ -33,88 +78,96 @@ export async function runCli() {
 
     intro('create-nosa')
 
-    const projectName = await text({
-      message: 'Project name',
-      placeholder: defaultProjectName,
-      defaultValue: defaultProjectName,
-      validate(value) {
-        const normalizedValue = (value || defaultProjectName).trim()
+    const projectName =
+      flagName ??
+      (await text({
+        message: 'Project name',
+        placeholder: defaultProjectName,
+        defaultValue: defaultProjectName,
+        validate(value) {
+          const normalizedValue = (value || defaultProjectName).trim()
 
-        if (normalizedValue.length === 0) {
-          return 'Project name cannot be empty'
-        }
+          if (normalizedValue.length === 0) {
+            return 'Project name cannot be empty'
+          }
 
-        if (
-          normalizedValue === '.' ||
-          normalizedValue === '..' ||
-          normalizedValue !== basename(normalizedValue) ||
-          normalizedValue.includes('/') ||
-          normalizedValue.includes('\\')
-        ) {
-          return 'Project name must be a folder name, not a path'
-        }
+          if (
+            normalizedValue === '.' ||
+            normalizedValue === '..' ||
+            normalizedValue !== basename(normalizedValue) ||
+            normalizedValue.includes('/') ||
+            normalizedValue.includes('\\')
+          ) {
+            return 'Project name must be a folder name, not a path'
+          }
 
-        return undefined
-      },
-    })
+          return undefined
+        },
+      }))
 
     if (isCancel(projectName)) {
       cancel('Operation cancelled.')
       process.exit(0)
     }
 
-    const template = await select({
-      message: 'Select a template',
-      options: [
-        {
-          value: 'start',
-          label: 'Start',
-        },
-      ],
-    })
+    const template =
+      flagTemplate ??
+      (await select({
+        message: 'Select a template',
+        options: [
+          {
+            value: 'start',
+            label: 'Start',
+          },
+        ],
+      }))
 
     if (isCancel(template)) {
       cancel('Operation cancelled.')
       process.exit(0)
     }
 
-    const codebaseStructure = await select({
-      message: 'Select codebase structure',
-      options: [
-        {
-          value: 'simple',
-          label: 'Simple',
-        },
-        {
-          value: 'vertical',
-          label: 'Vertical',
-        },
-      ],
-    })
+    const codebaseStructure =
+      flagStructure ??
+      (await select({
+        message: 'Select codebase structure',
+        options: [
+          {
+            value: 'simple',
+            label: 'Simple',
+          },
+          {
+            value: 'vertical',
+            label: 'Vertical',
+          },
+        ],
+      }))
 
     if (isCancel(codebaseStructure)) {
       cancel('Operation cancelled.')
       process.exit(0)
     }
 
-    const selectedAddons = await multiselect({
-      message: 'Select add-ons',
-      required: false,
-      options: [
-        {
-          value: 'shadcn',
-          label: 'shadcn/ui',
-        },
-        {
-          value: 'drizzle',
-          label: 'Drizzle + PostgreSQL',
-        },
-        {
-          value: 'betterauth',
-          label: 'Better Auth',
-        },
-      ],
-    })
+    const selectedAddons = flagAddons
+      ? flagAddons.split(',')
+      : await multiselect({
+          message: 'Select add-ons',
+          required: false,
+          options: [
+            {
+              value: 'shadcn',
+              label: 'shadcn/ui',
+            },
+            {
+              value: 'drizzle',
+              label: 'Drizzle + PostgreSQL',
+            },
+            {
+              value: 'betterauth',
+              label: 'Better Auth',
+            },
+          ],
+        })
 
     if (isCancel(selectedAddons)) {
       cancel('Operation cancelled.')
