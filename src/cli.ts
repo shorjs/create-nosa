@@ -259,7 +259,9 @@ ${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
 
 Next commands:
   cd ${normalizedProjectName}
-  bun run dev`)
+  bun run dev
+
+Note: The first time you run \`bun run dev\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
   } catch (error) {
     cancel(error instanceof Error ? error.message : 'Unexpected error.')
     process.exit(1)

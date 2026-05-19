@@ -101,3 +101,5 @@ Use full template copies. Each supported combination of base template, codebase 
 ## Generated Template File Naming
 
 Templates include a basic `src/AGENTS.md`.
+
+`routeTree.gen.ts` is excluded from templates — it gets generated automatically by the TanStack Router Vite plugin when the user runs `bun run dev`. Refer to the outro message we show at the end of scaffolding for context.
