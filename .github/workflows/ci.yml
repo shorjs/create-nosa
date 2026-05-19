@@ -35,3 +35,6 @@ jobs:
 
       - name: Typecheck
         run: bun run ts:check
+
+      - name: Test
+        run: bun test

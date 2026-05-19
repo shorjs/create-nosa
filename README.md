@@ -54,6 +54,24 @@ The generated templates include `bunfig.toml` and use Bun by default. A fresh `b
   [ ] Better Auth
 ```
 
+## Non-interactive Usage
+
+All prompts can be skipped by passing flags:
+
+```bash
+bun create nosa --name my-app --structure simple --addons shadcn,drizzle
+```
+
+| Flag              | Values                                              | Description        |
+| ----------------- | --------------------------------------------------- | ------------------ |
+| `-n, --name`      | any folder name                                     | Project name       |
+| `-t, --template`  | `start`                                             | Template           |
+| `-s, --structure` | `simple`, `vertical`                                | Codebase structure |
+| `-a, --addons`    | `shadcn`, `drizzle`, `betterauth` (comma-separated) | Add-ons            |
+| `-h, --help`      |                                                     | Show help          |
+
+Any omitted flag falls through to the interactive prompt for that field.
+
 ## Templates
 
 Templates live in [`src/templates`](./src/templates). Each supported combination is intended to be a complete static folder that the CLI can copy directly.

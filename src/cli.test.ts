@@ -1,6 +1,37 @@
-import { Glob } from 'bun'
+import { $, Glob } from 'bun'
 import { describe, expect, it } from 'bun:test'
+import { rm, mkdir } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+
+describe('cli flags', () => {
+  it('scaffolds a project with all flags', async () => {
+    const tmpDir = join(tmpdir(), 'create-nosa-e2e')
+    await rm(tmpDir, { recursive: true, force: true })
+    await mkdir(tmpDir, { recursive: true })
+
+    const index = join(import.meta.dir, '..', 'index.ts')
+    const result =
+      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons shadcn,drizzle`
+        .cwd(tmpDir)
+        .nothrow()
+
+    expect(result.exitCode).toBe(0)
+
+    const projectDir = join(tmpDir, 'e2e-test')
+
+    expect(await Bun.file(join(projectDir, 'package.json')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'src/router.tsx')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'src/welcome/welcome.tsx')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'components.json')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'drizzle.config.ts')).exists()).toBe(true)
+
+    const pkg = JSON.parse(await Bun.file(join(projectDir, 'package.json')).text())
+    expect(pkg.name).toBe('e2e-test')
+
+    await rm(tmpDir, { recursive: true, force: true })
+  }, 120_000)
+})
 
 describe('template structure', () => {
   it('has all core template files for start-simple', async () => {
