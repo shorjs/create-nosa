@@ -43,7 +43,7 @@ Add to your `.env`:
 
 ```
 BETTER_AUTH_SECRET=<run: openssl rand -base64 32>
-BETTER_AUTH_URL=http://localhost:3000
+BETTER_AUTH_URL=http://localhost:7331
 ```
 
 Generate the auth schema and push to the database:
