@@ -101,6 +101,7 @@ describe('template structure', () => {
       ),
     )
     const shadcnChangedFiles = [
+      'AGENTS.md',
       'README.md',
       'bun.lock',
       'package.json',
@@ -198,6 +199,7 @@ describe('template structure', () => {
       ),
     )
     const shadcnDrizzleChangedFiles = [
+      'AGENTS.md',
       'README.md',
       'bun.lock',
       'package.json',
@@ -309,6 +311,7 @@ describe('template structure', () => {
       ),
     )
     const shadcnBetterauthChangedFiles = [
+      'AGENTS.md',
       'README.md',
       'bun.lock',
       'package.json',
@@ -373,6 +376,7 @@ describe('template structure', () => {
       ),
     )
     const changedFiles = [
+      'AGENTS.md',
       'README.md',
       'bun.lock',
       'package.json',
@@ -470,6 +474,7 @@ describe('template structure', () => {
       ),
     )
     const changedFiles = [
+      'AGENTS.md',
       'README.md',
       'bun.lock',
       'package.json',
@@ -578,6 +583,7 @@ describe('template structure', () => {
       ),
     )
     const changedFiles = [
+      'AGENTS.md',
       'README.md',
       'bun.lock',
       'package.json',
