@@ -128,3 +128,20 @@
     @apply font-sans;
   }
 }
+
+/* Sonner injects its CSS after this file; use `html` prefix so these win the cascade. */
+html [data-sonner-toaster] {
+  font-family: var(--font-sans), sans-serif;
+}
+
+html [data-sonner-toaster][data-sonner-theme='light'] {
+  --error-text: var(--destructive);
+  --error-bg: color-mix(in oklch, var(--destructive) 10%, var(--background));
+  --error-border: color-mix(in oklch, var(--destructive) 30%, var(--background));
+}
+
+html [data-sonner-toaster][data-sonner-theme='dark'] {
+  --error-text: var(--destructive);
+  --error-bg: color-mix(in oklch, var(--destructive) 20%, var(--background));
+  --error-border: color-mix(in oklch, var(--destructive) 35%, var(--background));
+}

@@ -1,10 +1,20 @@
+import { toast } from 'sonner'
+
 import { Button } from '@/design-system/ui/button'
 
 export function ShadcnExample() {
   return (
-    <div>
+    <div className="flex flex-col items-start gap-2">
       <h2 className="font-medium">shadcn/ui example</h2>
-      <Button className="mt-2">Button</Button>
+      <Button
+        onClick={() =>
+          toast('shadcn/ui toast', {
+            description: 'Sonner follows your system theme.',
+          })
+        }
+      >
+        Show toast
+      </Button>
     </div>
   )
 }

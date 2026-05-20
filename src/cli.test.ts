@@ -105,13 +105,16 @@ describe('template structure', () => {
       'README.md',
       'bun.lock',
       'package.json',
+      'src/routes/__root.tsx',
       'src/routes/index.tsx',
       'src/styles.css',
     ]
 
     expect([...shadcnFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       'components.json',
+      'src/components/theme-provider.tsx',
       'src/components/ui/button.tsx',
+      'src/components/ui/sonner.tsx',
       'src/examples/shadcn.tsx',
       'src/lib/utils.ts',
     ])
@@ -203,6 +206,7 @@ describe('template structure', () => {
       'README.md',
       'bun.lock',
       'package.json',
+      'src/routes/__root.tsx',
       'src/routes/index.tsx',
       'src/styles.css',
     ]
@@ -211,7 +215,9 @@ describe('template structure', () => {
       '.env.example',
       'components.json',
       'drizzle.config.ts',
+      'src/components/theme-provider.tsx',
       'src/components/ui/button.tsx',
+      'src/components/ui/sonner.tsx',
       'src/db/index.ts',
       'src/db/schema.ts',
       'src/examples/drizzle.tsx',
@@ -315,6 +321,7 @@ describe('template structure', () => {
       'README.md',
       'bun.lock',
       'package.json',
+      'src/routes/__root.tsx',
       'src/routes/index.tsx',
       'src/styles.css',
     ]
@@ -325,7 +332,9 @@ describe('template structure', () => {
       '.env.example',
       'components.json',
       'drizzle.config.ts',
+      'src/components/theme-provider.tsx',
       'src/components/ui/button.tsx',
+      'src/components/ui/sonner.tsx',
       'src/db/auth-schema.ts',
       'src/db/index.ts',
       'src/db/schema.ts',
@@ -380,13 +389,16 @@ describe('template structure', () => {
       'README.md',
       'bun.lock',
       'package.json',
+      'src/routes/__root.tsx',
       'src/routes/index.tsx',
       'src/styles.css',
     ]
 
     expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       'components.json',
+      'src/design-system/theme-provider.tsx',
       'src/design-system/ui/button.tsx',
+      'src/design-system/ui/sonner.tsx',
       'src/design-system/utils.ts',
       'src/examples/shadcn-example.tsx',
     ])
@@ -478,6 +490,7 @@ describe('template structure', () => {
       'README.md',
       'bun.lock',
       'package.json',
+      'src/routes/__root.tsx',
       'src/routes/index.tsx',
       'src/styles.css',
     ]
@@ -488,7 +501,9 @@ describe('template structure', () => {
       'drizzle.config.ts',
       'src/data/db/index.ts',
       'src/data/db/schema.ts',
+      'src/design-system/theme-provider.tsx',
       'src/design-system/ui/button.tsx',
+      'src/design-system/ui/sonner.tsx',
       'src/design-system/utils.ts',
       'src/examples/drizzle-example.tsx',
       'src/examples/shadcn-example.tsx',
@@ -587,6 +602,7 @@ describe('template structure', () => {
       'README.md',
       'bun.lock',
       'package.json',
+      'src/routes/__root.tsx',
       'src/routes/index.tsx',
       'src/styles.css',
     ]
@@ -601,7 +617,9 @@ describe('template structure', () => {
       'src/auth/auth.server.ts',
       'src/data/db/index.ts',
       'src/data/db/schema.ts',
+      'src/design-system/theme-provider.tsx',
       'src/design-system/ui/button.tsx',
+      'src/design-system/ui/sonner.tsx',
       'src/design-system/utils.ts',
       'src/examples/betterauth-example.tsx',
       'src/examples/drizzle-example.tsx',
