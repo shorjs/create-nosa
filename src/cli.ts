@@ -1,4 +1,4 @@
-import { $, Glob } from 'bun'
+import { Command } from '@effect/platform'
 import {
   cancel,
   intro,
@@ -10,15 +10,49 @@ import {
   spinner,
   text,
 } from '@clack/prompts'
+import { Data, Effect } from 'effect'
+import { Glob } from 'bun'
 import { mkdir, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
 
-export async function runCli() {
+class CliCancelled extends Data.TaggedError('CliCancelled')<{
+  readonly message: string
+}> {}
+
+const clackPrompt = <T>(prompt: () => Promise<T | symbol>): Effect.Effect<T, CliCancelled> =>
+  Effect.tryPromise({
+    try: prompt,
+    catch: () => new CliCancelled({ message: 'Prompt failed' }),
+  }).pipe(
+    Effect.flatMap((value) =>
+      isCancel(value)
+        ? Effect.fail(new CliCancelled({ message: 'Operation cancelled.' }))
+        : Effect.succeed(value as T),
+    ),
+  )
+
+const templateFolders = new Set([
+  'start-simple',
+  'start-simple-shadcn',
+  'start-simple-drizzle',
+  'start-simple-drizzle-betterauth',
+  'start-simple-shadcn-drizzle',
+  'start-simple-shadcn-drizzle-betterauth',
+  'start-vertical',
+  'start-vertical-shadcn',
+  'start-vertical-drizzle',
+  'start-vertical-drizzle-betterauth',
+  'start-vertical-shadcn-drizzle',
+  'start-vertical-shadcn-drizzle-betterauth',
+])
+
+export const runCli = Effect.gen(function* () {
   const args = process.argv.slice(2)
   let flagName: string | undefined
   let flagTemplate: string | undefined
   let flagStructure: string | undefined
   let flagAddons: string | undefined
+  let flagHelp = false
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
@@ -40,7 +74,14 @@ export async function runCli() {
         break
       case '--help':
       case '-h':
-        console.log(`create-nosa - Project scaffolder for nosa
+        flagHelp = true
+        break
+    }
+  }
+
+  if (flagHelp) {
+    yield* Effect.sync(() =>
+      console.log(`create-nosa - Project scaffolder for nosa
 
 Usage:
   bun create nosa [options]
@@ -54,33 +95,19 @@ Options:
 
 Examples:
   bun create nosa --name my-app --structure simple
-  bun create nosa -n my-app -s vertical -a shadcn,drizzle`)
-        process.exit(0)
-    }
+  bun create nosa -n my-app -s vertical -a shadcn,drizzle`),
+    )
+    return
   }
 
-  try {
-    const defaultProjectName = 'my-nosa-app'
-    const templateFolders = new Set([
-      'start-simple',
-      'start-simple-shadcn',
-      'start-simple-drizzle',
-      'start-simple-drizzle-betterauth',
-      'start-simple-shadcn-drizzle',
-      'start-simple-shadcn-drizzle-betterauth',
-      'start-vertical',
-      'start-vertical-shadcn',
-      'start-vertical-drizzle',
-      'start-vertical-drizzle-betterauth',
-      'start-vertical-shadcn-drizzle',
-      'start-vertical-shadcn-drizzle-betterauth',
-    ])
+  const defaultProjectName = 'my-nosa-app'
 
-    intro('create-nosa')
+  yield* Effect.sync(() => intro('create-nosa'))
 
-    const projectName =
-      flagName ??
-      (await text({
+  const projectName =
+    flagName ??
+    (yield* clackPrompt(() =>
+      text({
         message: 'Project name',
         placeholder: defaultProjectName,
         defaultValue: defaultProjectName,
@@ -103,16 +130,13 @@ Examples:
 
           return undefined
         },
-      }))
+      }),
+    ))
 
-    if (isCancel(projectName)) {
-      cancel('Operation cancelled.')
-      process.exit(0)
-    }
-
-    const template =
-      flagTemplate ??
-      (await select({
+  const template =
+    flagTemplate ??
+    (yield* clackPrompt(() =>
+      select({
         message: 'Select a template',
         options: [
           {
@@ -120,16 +144,13 @@ Examples:
             label: 'Start',
           },
         ],
-      }))
+      }),
+    ))
 
-    if (isCancel(template)) {
-      cancel('Operation cancelled.')
-      process.exit(0)
-    }
-
-    const codebaseStructure =
-      flagStructure ??
-      (await select({
+  const codebaseStructure =
+    flagStructure ??
+    (yield* clackPrompt(() =>
+      select({
         message: 'Select codebase structure',
         options: [
           {
@@ -141,16 +162,13 @@ Examples:
             label: 'Vertical',
           },
         ],
-      }))
+      }),
+    ))
 
-    if (isCancel(codebaseStructure)) {
-      cancel('Operation cancelled.')
-      process.exit(0)
-    }
-
-    const selectedAddons = flagAddons
-      ? flagAddons.split(',')
-      : await multiselect({
+  const selectedAddons: string[] = flagAddons
+    ? flagAddons.split(',')
+    : yield* clackPrompt(() =>
+        multiselect({
           message: 'Select add-ons',
           required: false,
           options: [
@@ -167,93 +185,118 @@ Examples:
               label: 'Better Auth',
             },
           ],
-        })
+        }),
+      )
 
-    if (isCancel(selectedAddons)) {
-      cancel('Operation cancelled.')
-      process.exit(0)
-    }
+  const addonSet = new Set(selectedAddons)
 
-    const addonSet = new Set(selectedAddons)
+  if (addonSet.has('betterauth')) {
+    addonSet.add('drizzle')
+  }
 
-    if (addonSet.has('betterauth')) {
-      addonSet.add('drizzle')
-    }
+  const addons = (['shadcn', 'drizzle', 'betterauth'] as const).filter((addon) =>
+    addonSet.has(addon),
+  )
+  const templateFolder = [template, codebaseStructure, ...addons].join('-')
 
-    const addons = (['shadcn', 'drizzle', 'betterauth'] as const).filter((addon) =>
-      addonSet.has(addon),
-    )
-    const templateFolder = [template, codebaseStructure, ...addons].join('-')
+  if (!templateFolders.has(templateFolder)) {
+    yield* Effect.die(new Error(`Unsupported template combination: ${templateFolder}`))
+  }
 
-    if (!templateFolders.has(templateFolder)) {
-      throw new Error(`Unsupported template combination: ${templateFolder}`)
-    }
+  const normalizedProjectName = (projectName || defaultProjectName).trim()
+  const targetPath = resolve(process.cwd(), normalizedProjectName)
 
-    const normalizedProjectName = (projectName || defaultProjectName).trim()
-    const targetPath = resolve(process.cwd(), normalizedProjectName)
-    const targetStats = await stat(targetPath).catch(() => undefined)
+  // Ensure target directory
+  yield* Effect.tryPromise({
+    try: async () => {
+      const targetStats = await stat(targetPath).catch(() => undefined)
 
-    if (!targetStats) {
-      await mkdir(targetPath)
-    } else if (!targetStats.isDirectory()) {
-      throw new Error(`${targetPath} already exists and is not a directory.`)
-    } else if ((await readdir(targetPath)).length > 0) {
-      throw new Error(`${targetPath} already exists and is not empty.`)
-    }
+      if (!targetStats) {
+        await mkdir(targetPath)
+      } else if (!targetStats.isDirectory()) {
+        throw new Error(`${targetPath} already exists and is not a directory.`)
+      } else if ((await readdir(targetPath)).length > 0) {
+        throw new Error(`${targetPath} already exists and is not empty.`)
+      }
+    },
+    catch: (e) => e as Error,
+  }).pipe(Effect.orDie)
 
-    const templatePath = join(import.meta.dir, 'templates', templateFolder)
-    const templateFiles = new Glob('**/*')
+  // Copy template files
+  const templatePath = join(import.meta.dir, 'templates', templateFolder)
 
-    for await (const filePath of templateFiles.scan({
-      cwd: templatePath,
-      dot: true,
-      onlyFiles: true,
-    })) {
-      const targetRelativeFilePath = filePath
-        .split('/')
-        .map((pathSegment) => (pathSegment === '_gitignore' ? '.gitignore' : pathSegment))
-        .join('/')
-      const targetFilePath = join(targetPath, targetRelativeFilePath)
+  yield* Effect.tryPromise({
+    try: async () => {
+      const templateFiles = new Glob('**/*')
 
-      await mkdir(dirname(targetFilePath), { recursive: true })
-      await Bun.write(targetFilePath, Bun.file(join(templatePath, filePath)))
-    }
+      for await (const filePath of templateFiles.scan({
+        cwd: templatePath,
+        dot: true,
+        onlyFiles: true,
+      })) {
+        const targetRelativeFilePath = filePath
+          .split('/')
+          .map((pathSegment) => (pathSegment === '_gitignore' ? '.gitignore' : pathSegment))
+          .join('/')
+        const targetFilePath = join(targetPath, targetRelativeFilePath)
 
-    const packageJsonPath = join(targetPath, 'package.json')
-    const packageJson = await Bun.file(packageJsonPath).json()
-    const packageName = normalizedProjectName
-      .toLowerCase()
-      .replace(/\s+/g, '-')
-      .replace(/^[._]/, '')
-      .replace(/[^a-z\d\-~]+/g, '-')
+        await mkdir(dirname(targetFilePath), { recursive: true })
+        await Bun.write(targetFilePath, Bun.file(join(templatePath, filePath)))
+      }
+    },
+    catch: (e) => e as Error,
+  }).pipe(Effect.orDie)
 
-    packageJson.name = packageName || 'app'
-    await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
+  // Rewrite package.json name
+  yield* Effect.tryPromise({
+    try: async () => {
+      const packageJsonPath = join(targetPath, 'package.json')
+      const packageJson = await Bun.file(packageJsonPath).json()
+      const packageName = normalizedProjectName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/^[._]/, '')
+        .replace(/[^a-z\d\-~]+/g, '-')
 
-    const operation = spinner()
+      packageJson.name = packageName || 'app'
+      await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
+    },
+    catch: (e) => e as Error,
+  }).pipe(Effect.orDie)
 
-    operation.start('Installing dependencies with Bun')
+  const operation = spinner()
 
-    try {
-      await $`bun install`.cwd(targetPath).quiet()
-      operation.stop('Installed dependencies with Bun')
-    } catch (error) {
-      operation.error('Failed to install dependencies with Bun')
-      throw error
-    }
+  // Install dependencies
+  yield* Effect.sync(() => operation.start('Installing dependencies with Bun'))
 
-    operation.start('Initializing git')
+  yield* Command.make('bun', 'install').pipe(
+    Command.workingDirectory(targetPath),
+    Command.exitCode,
+    Effect.tapError(() =>
+      Effect.sync(() => operation.error('Failed to install dependencies with Bun')),
+    ),
+    Effect.orDie,
+  )
 
-    try {
-      await $`git init`.cwd(targetPath).quiet()
-      operation.stop('Initialized git')
-    } catch (error) {
-      operation.error('Failed to initialize git')
-      throw error
-    }
+  yield* Effect.sync(() => operation.stop('Installed dependencies with Bun'))
 
-    log.warn('Read README.md to get started (set up your environment variables first).')
+  // Initialize git
+  yield* Effect.sync(() => operation.start('Initializing git'))
 
+  yield* Command.make('git', 'init').pipe(
+    Command.workingDirectory(targetPath),
+    Command.exitCode,
+    Effect.tapError(() => Effect.sync(() => operation.error('Failed to initialize git'))),
+    Effect.orDie,
+  )
+
+  yield* Effect.sync(() => operation.stop('Initialized git'))
+
+  yield* Effect.sync(() =>
+    log.warn('Read README.md to get started (set up your environment variables first).'),
+  )
+
+  yield* Effect.sync(() =>
     outro(`Created ${normalizedProjectName}
 ${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
 
@@ -261,9 +304,13 @@ Next commands:
   cd ${normalizedProjectName}
   bun run dev
 
-Note: The first time you run \`bun run dev\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
-  } catch (error) {
-    cancel(error instanceof Error ? error.message : 'Unexpected error.')
-    process.exit(1)
-  }
-}
+Note: The first time you run \`bun run dev\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`),
+  )
+}).pipe(
+  Effect.catchTag('CliCancelled', (e) =>
+    Effect.sync(() => {
+      cancel(e.message)
+      process.exitCode = 0
+    }),
+  ),
+)

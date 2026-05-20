@@ -69,6 +69,7 @@ Do not write optional code or config that only repeats a tool's default behavior
 # Stacks
 
 - `@clack/prompts` for the interactive CLI
+- `effect` + `@effect/platform` + `@effect/platform-bun` for typed effects, file system, and command execution
 - `Bun` for runtime, file system operations, and package management
 
 # Dependency Versions
