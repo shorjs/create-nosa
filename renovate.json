@@ -11,6 +11,7 @@
   "prHourlyLimit": 1,
   "prConcurrentLimit": 3,
   "osvVulnerabilityAlerts": true,
+  "dependencyDashboardAutoclose": true,
   "packageRules": [
     {
       "matchUpdateTypes": ["minor", "patch"],
