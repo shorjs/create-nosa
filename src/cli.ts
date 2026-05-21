@@ -12,6 +12,7 @@ import {
 } from '@clack/prompts'
 import { mkdir, readdir, stat } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
+import { styleText } from 'node:util'
 
 export async function runCli() {
   const args = process.argv.slice(2)
@@ -264,7 +265,12 @@ Examples:
       throw error
     }
 
-    log.warn('Read README.md to get started (set up your environment variables first).')
+    log.warn(
+      styleText(
+        'yellow',
+        'Read README.md to get started (set up your environment variables first).',
+      ),
+    )
 
     outro(`Created ${normalizedProjectName}
 ${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
