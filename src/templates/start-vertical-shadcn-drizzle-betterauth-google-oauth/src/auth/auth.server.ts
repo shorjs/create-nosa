@@ -13,5 +13,8 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
   },
-  plugins: [tanstackStartCookies()],
+  plugins: [
+    // tanstackStartCookies must be the last plugin in the list.
+    tanstackStartCookies(),
+  ],
 })

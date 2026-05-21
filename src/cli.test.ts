@@ -140,6 +140,10 @@ describe('template structure', () => {
       const authConfig = await Bun.file(join(templatesPath, filePath)).text()
 
       expect(authConfig).not.toContain('emailAndPassword')
+      expect(authConfig).toContain(`plugins: [
+    // tanstackStartCookies must be the last plugin in the list.
+    tanstackStartCookies(),
+  ]`)
     }
   })
 
