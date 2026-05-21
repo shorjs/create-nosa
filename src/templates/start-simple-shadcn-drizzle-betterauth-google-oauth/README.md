@@ -78,7 +78,7 @@ Important: for new OAuth clients, Google only shows the full client secret when 
 
 1. Open [Google Cloud Console](https://console.cloud.google.com/) and select or create the project for the environment.
 2. Go to **Google Auth Platform** > **Branding** and click **Get Started** if the project has not been configured yet.
-3. Enter an app name that clearly identifies the environment, such as `my-app dev` or `my-app prod`, select a support email, choose **External** unless the app is limited to your Google Workspace organization, add your developer contact email, accept the user data policy, and continue.
+3. Enter an app name — for dev environments use something like `my-app dev` (only test users see it), for production use just `my-app` since the consent screen is user-facing. Select a support email, choose **External** unless the app is limited to your Google Workspace organization, add your developer contact email, accept the user data policy, and continue.
 4. On **Audience**, add yourself under **Test users** while the app is in testing mode.
 5. On **Data Access**, keep scopes minimal. Basic Google sign-in only needs the profile and email identity scopes; do not add Gmail, Drive, Calendar, or other API scopes unless the app actually uses those APIs.
 6. Go to **Google Auth Platform** > **Clients** > **Create Client** > **Web application**.
