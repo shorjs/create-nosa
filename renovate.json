@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":pinAllExceptPeerDependencies",
+    "security:minimumReleaseAgeNpm"
+  ],
+  "enabledManagers": ["bun", "github-actions"],
+  "timezone": "Asia/Makassar",
+  "schedule": ["* 0-5 * * 1"],
+  "prHourlyLimit": 1,
+  "prConcurrentLimit": 3,
+  "osvVulnerabilityAlerts": true,
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "minor and patch dependency updates"
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}
