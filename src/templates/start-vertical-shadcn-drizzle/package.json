@@ -21,8 +21,8 @@
     "@fontsource-variable/roboto": "5.2.10",
     "@phosphor-icons/react": "2.1.10",
     "@tailwindcss/vite": "4.3.0",
-    "@tanstack/react-router": "1.170.4",
-    "@tanstack/react-start": "1.168.6",
+    "@tanstack/react-router": "1.170.6",
+    "@tanstack/react-start": "1.168.9",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "drizzle-orm": "0.45.2",
@@ -30,7 +30,7 @@
     "pg": "8.21.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "shadcn": "4.7.0",
+    "shadcn": "4.8.0",
     "sonner": "2.0.7",
     "tailwind-merge": "3.6.0",
     "tailwindcss": "4.3.0",
@@ -38,16 +38,16 @@
   },
   "devDependencies": {
     "@types/pg": "8.20.0",
-    "@types/react": "19.2.14",
+    "@types/react": "19.2.15",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.2",
     "drizzle-kit": "0.31.10",
     "nano-staged": "1.0.2",
-    "oxfmt": "0.50.0",
-    "oxlint": "1.65.0",
+    "oxfmt": "0.51.0",
+    "oxlint": "1.66.0",
     "simple-git-hooks": "2.13.1",
     "typescript": "6.0.3",
-    "vite": "8.0.13"
+    "vite": "8.0.14"
   },
   "simple-git-hooks": {
     "pre-commit": "./node_modules/.bin/nano-staged"
