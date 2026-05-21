@@ -1,0 +1,60 @@
+{
+  "name": "start-vertical-shadcn-drizzle-betterauth-google-oauth",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio",
+    "postinstall": "bunx --bun simple-git-hooks"
+  },
+  "dependencies": {
+    "@base-ui/react": "1.5.0",
+    "@fontsource-variable/roboto": "5.2.10",
+    "@phosphor-icons/react": "2.1.10",
+    "@tailwindcss/vite": "4.3.0",
+    "@tanstack/react-router": "1.170.6",
+    "@tanstack/react-start": "1.168.9",
+    "better-auth": "1.6.11",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "drizzle-orm": "0.45.2",
+    "oxlint-tsgolint": "0.23.0",
+    "pg": "8.21.0",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
+    "shadcn": "4.8.0",
+    "sonner": "2.0.7",
+    "tailwind-merge": "3.6.0",
+    "tailwindcss": "4.3.0",
+    "tw-animate-css": "1.4.0"
+  },
+  "devDependencies": {
+    "@types/pg": "8.20.0",
+    "@types/react": "19.2.15",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
+    "drizzle-kit": "0.31.10",
+    "nano-staged": "1.0.2",
+    "oxfmt": "0.51.0",
+    "oxlint": "1.66.0",
+    "simple-git-hooks": "2.13.1",
+    "typescript": "6.0.3",
+    "vite": "8.0.14"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "./node_modules/.bin/nano-staged"
+  },
+  "nano-staged": {
+    "*": "bun run fmt --no-error-on-unmatched-pattern",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "bun run lint:fix"
+  }
+}

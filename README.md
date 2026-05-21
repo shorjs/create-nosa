@@ -52,6 +52,7 @@ The generated templates include `bunfig.toml` and use Bun by default. A fresh `b
   [ ] shadcn/ui
   [ ] Drizzle + PostgreSQL
   [ ] Better Auth
+  [ ] Google OAuth
 ```
 
 ## Non-interactive Usage
@@ -62,13 +63,13 @@ All prompts can be skipped by passing flags:
 bun create nosa --name my-app --structure simple --addons shadcn,drizzle
 ```
 
-| Flag              | Values                                              | Description        |
-| ----------------- | --------------------------------------------------- | ------------------ |
-| `-n, --name`      | any folder name                                     | Project name       |
-| `-t, --template`  | `start`                                             | Template           |
-| `-s, --structure` | `simple`, `vertical`                                | Codebase structure |
-| `-a, --addons`    | `shadcn`, `drizzle`, `betterauth` (comma-separated) | Add-ons            |
-| `-h, --help`      |                                                     | Show help          |
+| Flag              | Values                                                              | Description        |
+| ----------------- | ------------------------------------------------------------------- | ------------------ |
+| `-n, --name`      | any folder name                                                     | Project name       |
+| `-t, --template`  | `start`                                                             | Template           |
+| `-s, --structure` | `simple`, `vertical`                                                | Codebase structure |
+| `-a, --addons`    | `shadcn`, `drizzle`, `betterauth`, `google-oauth` (comma-separated) | Add-ons            |
+| `-h, --help`      |                                                                     | Show help          |
 
 Any omitted flag falls through to the interactive prompt for that field.
 
@@ -80,7 +81,7 @@ Current option status:
 
 - **Template**: Start
 - **Structure**: Simple and Vertical
-- **Add-ons**: All six combinations available for both — shadcn/ui, Drizzle + PostgreSQL, Better Auth (auto-includes Drizzle), and their shadcn/ui variants
+- **Add-ons**: shadcn/ui, Drizzle + PostgreSQL, Better Auth (auto-includes Drizzle), Google OAuth (auto-includes Better Auth and Drizzle), and their shadcn/ui variants
 
 ## Vertical Philosophy
 
@@ -128,8 +129,14 @@ Drizzle + PostgreSQL adds:
 
 Better Auth adds:
 
-- **Auth**: [Better Auth](https://better-auth.com) with email/password authentication
+- **Auth**: [Better Auth](https://better-auth.com) with database-backed session handling and no sign-in method enabled by default
 - **Integration**: TanStack Start handler at `src/routes/api/auth/$.ts`
 - **Server functions**: session helpers in `src/lib/auth.functions.ts`
 - **Drizzle schema**: auto-generated auth tables in `src/db/auth-schema.ts`
 - **Dependencies**: `better-auth` with `tanstackStartCookies` plugin
+
+Google OAuth adds:
+
+- **Provider**: Google social sign-in through Better Auth
+- **Environment**: `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`
+- **Example**: a dedicated Google OAuth example

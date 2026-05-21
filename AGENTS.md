@@ -25,6 +25,7 @@ bun create nosa
   [ ] shadcn/ui
   [ ] Drizzle + PostgreSQL
   [ ] Better Auth
+  [ ] Google OAuth
 ```
 
 ## Selection Tree
@@ -41,10 +42,16 @@ create-nosa
             |     |- shadcn/ui
             |     |- Drizzle + PostgreSQL
             |     |  `- Optional: Better Auth
+            |     |     `- Optional: Google OAuth
             |     |- shadcn/ui + Drizzle + PostgreSQL
             |     |  `- Optional: Better Auth
-            |     `- Better Auth
-            |        `- Auto-includes Drizzle + PostgreSQL
+            |     |     `- Optional: Google OAuth
+            |     |- Better Auth
+            |     |  `- Auto-includes Drizzle + PostgreSQL
+            |     |     `- Optional: Google OAuth
+            |     `- Google OAuth
+            |        `- Auto-includes Better Auth
+            |           `- Auto-includes Drizzle + PostgreSQL
             |
             `- Vertical
                `- Add-ons
@@ -52,10 +59,16 @@ create-nosa
                   |- shadcn/ui
                   |- Drizzle + PostgreSQL
                   |  `- Optional: Better Auth
+                  |     `- Optional: Google OAuth
                   |- shadcn/ui + Drizzle + PostgreSQL
                   |  `- Optional: Better Auth
-                  `- Better Auth
-                     `- Auto-includes Drizzle + PostgreSQL
+                  |     `- Optional: Google OAuth
+                  |- Better Auth
+                  |  `- Auto-includes Drizzle + PostgreSQL
+                  |     `- Optional: Google OAuth
+                  `- Google OAuth
+                     `- Auto-includes Better Auth
+                        `- Auto-includes Drizzle + PostgreSQL
 ```
 
 # Instructions

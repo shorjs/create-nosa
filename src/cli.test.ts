@@ -12,7 +12,7 @@ describe('cli flags', () => {
 
     const index = join(import.meta.dir, '..', 'index.ts')
     const result =
-      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons shadcn,drizzle`
+      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons shadcn,google-oauth`
         .cwd(tmpDir)
         .nothrow()
 
@@ -25,9 +25,28 @@ describe('cli flags', () => {
     expect(await Bun.file(join(projectDir, 'src/welcome/welcome.tsx')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'components.json')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'drizzle.config.ts')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'src/auth/auth.server.ts')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'src/examples/betterauth-example.tsx')).exists()).toBe(
+      true,
+    )
+    expect(await Bun.file(join(projectDir, 'src/examples/google-oauth-example.tsx')).exists()).toBe(
+      true,
+    )
 
     const pkg = JSON.parse(await Bun.file(join(projectDir, 'package.json')).text())
     expect(pkg.name).toBe('e2e-test')
+
+    const authServer = await Bun.file(join(projectDir, 'src/auth/auth.server.ts')).text()
+    expect(authServer).toContain('socialProviders')
+    expect(authServer).toContain('google')
+
+    const indexRoute = await Bun.file(join(projectDir, 'src/routes/index.tsx')).text()
+    expect(indexRoute).toContain('GoogleOAuthExample')
+    expect(indexRoute).toContain('Google OAuth')
+
+    const envExample = await Bun.file(join(projectDir, '.env.example')).text()
+    expect(envExample).toContain('GOOGLE_CLIENT_ID=')
+    expect(envExample).toContain('GOOGLE_CLIENT_SECRET=')
 
     await rm(tmpDir, { recursive: true, force: true })
   }, 120_000)
@@ -74,6 +93,53 @@ describe('template structure', () => {
 
     for (const file of coreFiles) {
       expect(await Bun.file(join(templatesPath, 'start-vertical', file)).exists()).toBe(true)
+    }
+  })
+
+  it('binds every template dev server to 127.0.0.1:7331', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const templateFiles = new Glob('*/vite.config.ts')
+    const viteConfigs = await Array.fromAsync(
+      templateFiles.scan({
+        cwd: templatesPath,
+        dot: true,
+        onlyFiles: true,
+      }),
+    )
+
+    expect(viteConfigs.length).toBeGreaterThan(0)
+
+    for (const filePath of viteConfigs) {
+      const viteConfig = await Bun.file(join(templatesPath, filePath)).text()
+
+      expect(viteConfig).toContain("host: '127.0.0.1'")
+      expect(viteConfig).toContain('port: 7331')
+    }
+  })
+
+  it('keeps Better Auth templates method-neutral unless a provider add-on is selected', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const files = new Glob('**/*')
+    const betterAuthConfigs = await Array.fromAsync(
+      files.scan({
+        cwd: templatesPath,
+        dot: true,
+        onlyFiles: true,
+      }),
+    ).then((filePaths) =>
+      filePaths.filter(
+        (filePath) =>
+          filePath.includes('betterauth') &&
+          (filePath.endsWith('src/lib/auth.ts') || filePath.endsWith('src/auth/auth.server.ts')),
+      ),
+    )
+
+    expect(betterAuthConfigs.length).toBeGreaterThan(0)
+
+    for (const filePath of betterAuthConfigs) {
+      const authConfig = await Bun.file(join(templatesPath, filePath)).text()
+
+      expect(authConfig).not.toContain('emailAndPassword')
     }
   })
 
@@ -637,6 +703,98 @@ describe('template structure', () => {
       expect(await Bun.file(join(variantTemplatePath, filePath)).text()).toBe(
         await Bun.file(join(baseTemplatePath, filePath)).text(),
       )
+    }
+  })
+
+  it('keeps Google OAuth templates aligned with their Better Auth templates except Google OAuth files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const files = new Glob('**/*')
+    const variants = [
+      {
+        base: 'start-simple-drizzle-betterauth',
+        google: 'start-simple-drizzle-betterauth-google-oauth',
+        changedFiles: [
+          '.env.example',
+          'README.md',
+          'package.json',
+          'src/lib/auth.ts',
+          'src/routes/index.tsx',
+        ],
+        addedFiles: ['src/examples/google-oauth.tsx'],
+      },
+      {
+        base: 'start-simple-shadcn-drizzle-betterauth',
+        google: 'start-simple-shadcn-drizzle-betterauth-google-oauth',
+        changedFiles: [
+          '.env.example',
+          'README.md',
+          'package.json',
+          'src/lib/auth.ts',
+          'src/routes/index.tsx',
+        ],
+        addedFiles: ['src/examples/google-oauth.tsx'],
+      },
+      {
+        base: 'start-vertical-drizzle-betterauth',
+        google: 'start-vertical-drizzle-betterauth-google-oauth',
+        changedFiles: [
+          '.env.example',
+          'README.md',
+          'package.json',
+          'src/auth/auth.server.ts',
+          'src/routes/index.tsx',
+        ],
+        addedFiles: ['src/examples/google-oauth-example.tsx'],
+      },
+      {
+        base: 'start-vertical-shadcn-drizzle-betterauth',
+        google: 'start-vertical-shadcn-drizzle-betterauth-google-oauth',
+        changedFiles: [
+          '.env.example',
+          'README.md',
+          'package.json',
+          'src/auth/auth.server.ts',
+          'src/routes/index.tsx',
+        ],
+        addedFiles: ['src/examples/google-oauth-example.tsx'],
+      },
+    ]
+
+    for (const variant of variants) {
+      const baseTemplatePath = join(templatesPath, variant.base)
+      const googleTemplatePath = join(templatesPath, variant.google)
+      const baseFiles = new Set(
+        await Array.fromAsync(
+          files.scan({
+            cwd: baseTemplatePath,
+            dot: true,
+            onlyFiles: true,
+          }),
+        ),
+      )
+      const googleFiles = new Set(
+        await Array.fromAsync(
+          files.scan({
+            cwd: googleTemplatePath,
+            dot: true,
+            onlyFiles: true,
+          }),
+        ),
+      )
+
+      expect([...googleFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual(
+        variant.addedFiles,
+      )
+
+      for (const filePath of baseFiles) {
+        if (variant.changedFiles.includes(filePath)) {
+          continue
+        }
+
+        expect(await Bun.file(join(googleTemplatePath, filePath)).text()).toBe(
+          await Bun.file(join(baseTemplatePath, filePath)).text(),
+        )
+      }
     }
   })
 })

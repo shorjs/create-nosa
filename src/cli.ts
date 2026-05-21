@@ -49,12 +49,12 @@ Options:
   -n, --name <name>         Project name (default: my-nosa-app)
   -t, --template <template> Template name (default: start)
   -s, --structure <type>    Codebase structure (simple, vertical)
-  -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth)
+  -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth,google-oauth)
   -h, --help                Show this help message
 
 Examples:
   bun create nosa --name my-app --structure simple
-  bun create nosa -n my-app -s vertical -a shadcn,drizzle`)
+  bun create nosa -n my-app -s vertical -a shadcn,google-oauth`)
         process.exit(0)
     }
   }
@@ -66,14 +66,18 @@ Examples:
       'start-simple-shadcn',
       'start-simple-drizzle',
       'start-simple-drizzle-betterauth',
+      'start-simple-drizzle-betterauth-google-oauth',
       'start-simple-shadcn-drizzle',
       'start-simple-shadcn-drizzle-betterauth',
+      'start-simple-shadcn-drizzle-betterauth-google-oauth',
       'start-vertical',
       'start-vertical-shadcn',
       'start-vertical-drizzle',
       'start-vertical-drizzle-betterauth',
+      'start-vertical-drizzle-betterauth-google-oauth',
       'start-vertical-shadcn-drizzle',
       'start-vertical-shadcn-drizzle-betterauth',
+      'start-vertical-shadcn-drizzle-betterauth-google-oauth',
     ])
 
     intro('create-nosa')
@@ -166,6 +170,10 @@ Examples:
               value: 'betterauth',
               label: 'Better Auth',
             },
+            {
+              value: 'google-oauth',
+              label: 'Google OAuth',
+            },
           ],
         })
 
@@ -176,11 +184,15 @@ Examples:
 
     const addonSet = new Set(selectedAddons)
 
+    if (addonSet.has('google-oauth')) {
+      addonSet.add('betterauth')
+    }
+
     if (addonSet.has('betterauth')) {
       addonSet.add('drizzle')
     }
 
-    const addons = (['shadcn', 'drizzle', 'betterauth'] as const).filter((addon) =>
+    const addons = (['shadcn', 'drizzle', 'betterauth', 'google-oauth'] as const).filter((addon) =>
       addonSet.has(addon),
     )
     const templateFolder = [template, codebaseStructure, ...addons].join('-')

@@ -37,13 +37,13 @@ bun run db:studio
 
 ## Authentication
 
-This project uses [Better Auth](https://better-auth.com) with email and password authentication.
+This project uses [Better Auth](https://better-auth.com) with a database-backed auth setup. No sign-in method is enabled by default; add the provider or passwordless flow your app needs.
 
 Add to your `.env`:
 
 ```
 BETTER_AUTH_SECRET=<run: openssl rand -base64 32>
-BETTER_AUTH_URL=http://localhost:7331
+BETTER_AUTH_URL=http://127.0.0.1:7331
 ```
 
 Generate the auth schema and push to the database:
