@@ -17,7 +17,7 @@
     "postinstall": "bunx --bun simple-git-hooks"
   },
   "dependencies": {
-    "@base-ui/react": "1.4.1",
+    "@base-ui/react": "1.5.0",
     "@fontsource-variable/roboto": "5.2.10",
     "@phosphor-icons/react": "2.1.10",
     "@tailwindcss/vite": "4.3.0",
