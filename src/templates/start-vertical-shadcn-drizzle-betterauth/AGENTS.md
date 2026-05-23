@@ -10,6 +10,14 @@ Prefer inline code, logic, functions, and files first. Keep logic in place unles
 
 Do not write optional code or config that only repeats a tool's default behavior. Prefer omitted defaults over explicit self-documenting settings unless changing behavior, correctness, or a user request requires it.
 
+## Drizzle Database Workflow
+
+During development, use `bun db:push` to apply schema changes while iterating.
+
+Do not run `bun db:generate` for normal development schema changes. It creates migration files and should only be run when the user explicitly asks to create migrations, prepare release migrations, or says the schema is settled for release.
+
+If you edit Drizzle schema files, validate the change with `bun db:push` and relevant checks instead of generating migrations.
+
 ## shadcn/ui
 
 Always refer to the shadcn skill first — check whether it's installed in the repo, available globally, or as a last resort load it from https://github.com/shadcn-ui/ui/blob/main/skills/shadcn/SKILL.md

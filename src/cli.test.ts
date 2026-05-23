@@ -242,7 +242,13 @@ describe('template structure', () => {
         }),
       ),
     )
-    const drizzleChangedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
+    const drizzleChangedFiles = [
+      'AGENTS.md',
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+    ]
 
     expect([...drizzleFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
@@ -354,7 +360,13 @@ describe('template structure', () => {
         }),
       ),
     )
-    const betterauthChangedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
+    const betterauthChangedFiles = [
+      'AGENTS.md',
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+    ]
 
     expect([...betterauthFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
@@ -545,7 +557,13 @@ describe('template structure', () => {
         }),
       ),
     )
-    const changedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
+    const changedFiles = [
+      'AGENTS.md',
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+    ]
 
     expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
@@ -658,7 +676,13 @@ describe('template structure', () => {
         }),
       ),
     )
-    const changedFiles = ['README.md', 'bun.lock', 'package.json', 'src/routes/index.tsx']
+    const changedFiles = [
+      'AGENTS.md',
+      'README.md',
+      'bun.lock',
+      'package.json',
+      'src/routes/index.tsx',
+    ]
 
     expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
