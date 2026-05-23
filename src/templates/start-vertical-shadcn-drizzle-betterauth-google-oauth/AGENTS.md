@@ -21,3 +21,9 @@ If you edit Drizzle schema files, validate the change with `bun db:push` and rel
 ## shadcn/ui
 
 Always refer to the shadcn skill first — check whether it's installed in the repo, available globally, or as a last resort load it from https://github.com/shadcn-ui/ui/blob/main/skills/shadcn/SKILL.md
+
+## Better Auth Schema Generation
+
+The `auth:generate` script prints the `npx @better-auth/cli@1.4.21` command rather than running it directly. This is because `bunfig.toml` forces Bun, but the Better Auth CLI produces garbled output when run via Bun. Always copy and run the printed command with `npx` (Node/npm) instead of `bun`.
+
+The CLI version is pinned to `1.4.21`. Do not update it without testing.

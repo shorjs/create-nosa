@@ -14,6 +14,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "auth:generate": "echo 'npx @better-auth/cli@1.4.21 generate --config ./src/lib/auth.ts --output ./src/db/auth.schema.ts --yes' && echo '> Run this manually with npx (not bun)'",
     "postinstall": "bunx --bun simple-git-hooks"
   },
   "dependencies": {

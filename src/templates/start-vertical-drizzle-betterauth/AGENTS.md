@@ -17,3 +17,9 @@ During development, use `bun db:push` to apply schema changes while iterating.
 Do not run `bun db:generate` for normal development schema changes. It creates migration files and should only be run when the user explicitly asks to create migrations, prepare release migrations, or says the schema is settled for release.
 
 If you edit Drizzle schema files, validate the change with `bun db:push` and relevant checks instead of generating migrations.
+
+## Better Auth Schema Generation
+
+The `auth:generate` script prints the `npx @better-auth/cli@1.4.21` command rather than running it directly. This is because `bunfig.toml` forces Bun, but the Better Auth CLI produces garbled output when run via Bun. Always copy and run the printed command with `npx` (Node/npm) instead of `bun`.
+
+The CLI version is pinned to `1.4.21`. Do not update it without testing.
