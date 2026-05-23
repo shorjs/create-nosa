@@ -50,7 +50,7 @@ Options:
   -n, --name <name>         Project name (default: my-nosa-app)
   -t, --template <template> Template name (default: start)
   -s, --structure <type>    Codebase structure (simple, vertical)
-  -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth,google-oauth)
+  -a, --addons <list>       Comma-separated add-ons (shadcn,tanstack-form,drizzle,betterauth,google-oauth)
   -h, --help                Show this help message
 
 Examples:
@@ -65,6 +65,7 @@ Examples:
     const templateFolders = new Set([
       'start-simple',
       'start-simple-shadcn',
+      'start-simple-shadcn-tanstack-form',
       'start-simple-drizzle',
       'start-simple-drizzle-betterauth',
       'start-simple-drizzle-betterauth-google-oauth',
@@ -164,6 +165,10 @@ Examples:
               label: 'shadcn/ui',
             },
             {
+              value: 'tanstack-form',
+              label: 'TanStack Form',
+            },
+            {
               value: 'drizzle',
               label: 'Drizzle + PostgreSQL',
             },
@@ -193,9 +198,13 @@ Examples:
       addonSet.add('drizzle')
     }
 
-    const addons = (['shadcn', 'drizzle', 'betterauth', 'google-oauth'] as const).filter((addon) =>
-      addonSet.has(addon),
-    )
+    if (addonSet.has('tanstack-form')) {
+      addonSet.add('shadcn')
+    }
+
+    const addons = (
+      ['shadcn', 'tanstack-form', 'drizzle', 'betterauth', 'google-oauth'] as const
+    ).filter((addon) => addonSet.has(addon))
     const templateFolder = [template, codebaseStructure, ...addons].join('-')
 
     if (!templateFolders.has(templateFolder)) {

@@ -23,6 +23,7 @@ bun create nosa
 
 ? Select add-ons
   [ ] shadcn/ui
+  [ ] TanStack Form
   [ ] Drizzle + PostgreSQL
   [ ] Better Auth
   [ ] Google OAuth
@@ -40,10 +41,12 @@ create-nosa
             |  `- Add-ons
             |     |- None
             |     |- shadcn/ui
+            |     |  `- Optional: TanStack Form
             |     |- Drizzle + PostgreSQL
             |     |  `- Optional: Better Auth
             |     |     `- Optional: Google OAuth
             |     |- shadcn/ui + Drizzle + PostgreSQL
+            |     |  `- Optional: TanStack Form
             |     |  `- Optional: Better Auth
             |     |     `- Optional: Google OAuth
             |     |- Better Auth
@@ -57,10 +60,12 @@ create-nosa
                `- Add-ons
                   |- None
                   |- shadcn/ui
+                  |  `- Optional: TanStack Form
                   |- Drizzle + PostgreSQL
                   |  `- Optional: Better Auth
                   |     `- Optional: Google OAuth
                   |- shadcn/ui + Drizzle + PostgreSQL
+                  |  `- Optional: TanStack Form
                   |  `- Optional: Better Auth
                   |     `- Optional: Google OAuth
                   |- Better Auth
@@ -87,6 +92,8 @@ Do not write optional code or config that only repeats a tool's default behavior
 # Dependency Versions
 
 Keep every package dependency in `package.json` files pinned to an exact stable version. Do not use semver ranges, `latest`, or prerelease tags for dependencies or devDependencies unless the user explicitly asks for that exception.
+
+Before adding or updating a dependency, always check `https://npmx.dev/package/<name>` (or `https://npmjs.com/package/<name>`) for the actual latest stable version. Do not guess or hallucinate version numbers — only use versions confirmed from the registry.
 
 # Objective
 
