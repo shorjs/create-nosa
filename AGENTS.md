@@ -23,7 +23,6 @@ bun create nosa
 
 ? Select add-ons
   [ ] shadcn/ui
-  [ ] TanStack Form
   [ ] Drizzle + PostgreSQL
   [ ] Better Auth
   [ ] Google OAuth
@@ -41,12 +40,12 @@ create-nosa
             |  `- Add-ons
             |     |- None
             |     |- shadcn/ui
-            |     |  `- Optional: TanStack Form
+            |     |  `- Includes TanStack Form
             |     |- Drizzle + PostgreSQL
             |     |  `- Optional: Better Auth
             |     |     `- Optional: Google OAuth
             |     |- shadcn/ui + Drizzle + PostgreSQL
-            |     |  `- Optional: TanStack Form
+            |     |  `- Includes TanStack Form
             |     |  `- Optional: Better Auth
             |     |     `- Optional: Google OAuth
             |     |- Better Auth
@@ -60,12 +59,12 @@ create-nosa
                `- Add-ons
                   |- None
                   |- shadcn/ui
-                  |  `- Optional: TanStack Form
+                  |  `- Includes TanStack Form
                   |- Drizzle + PostgreSQL
                   |  `- Optional: Better Auth
                   |     `- Optional: Google OAuth
                   |- shadcn/ui + Drizzle + PostgreSQL
-                  |  `- Optional: TanStack Form
+                  |  `- Includes TanStack Form
                   |  `- Optional: Better Auth
                   |     `- Optional: Google OAuth
                   |- Better Auth
@@ -90,8 +89,9 @@ Do not write optional code or config that only repeats a tool's default behavior
 # Stacks
 
 - `@clack/prompts` for the interactive CLI
-- `Bun` for runtime, file system operations, and package management
+- `bun` for runtime, file system operations, and package management
 - `shadcn` — when making changes to templates that enable shadcn add-ons, load the `/shadcn` skill first
+- `@tanstack/react-form` is included in every shadcn-enabled template; it is not a separate add-on.
 
 # Dependency Versions
 
@@ -116,7 +116,7 @@ yarn dlx create nosa
 pnpm dlx create nosa
 ```
 
-Those invocation methods are supported, but every generated template still uses Bun because each template includes a `bun.lock` file. User can switch to their preferred package manager by manually inferring `bun.lock` to their preferred package manager lock file and installing dependencies with it.
+Those invocation methods are supported, but every generated project still uses Bun by default because the CLI runs `bun install` and creates a fresh `bun.lock`. Users can switch to their preferred package manager by replacing `bun.lock` with their preferred package manager lock file and installing dependencies with it.
 
 ## Implementation
 

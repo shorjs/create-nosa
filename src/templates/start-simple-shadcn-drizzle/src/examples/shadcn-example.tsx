@@ -2,21 +2,15 @@ import { useForm } from '@tanstack/react-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
 
-import { Button } from '@/design-system/ui/button'
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from '@/design-system/ui/field'
-import { Input } from '@/design-system/ui/input'
+import { Button } from '@/components/ui/button'
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupText,
   InputGroupTextarea,
-} from '@/design-system/ui/input-group'
+} from '@/components/ui/input-group'
 
 const formSchema = z.object({
   title: z

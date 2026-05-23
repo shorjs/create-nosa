@@ -41,7 +41,7 @@ Each directory owns its components, types, server functions, and schemas. As you
 
 ## UI Components
 
-This project uses [shadcn/ui](https://ui.shadcn.com/).
+This project uses [shadcn/ui](https://ui.shadcn.com/) with TanStack Form and Zod included.
 
 To switch to a different preset:
 
@@ -123,6 +123,12 @@ GOOGLE_CLIENT_SECRET=<client secret>
 ```
 
 11. Make sure `BETTER_AUTH_URL` matches the origin in the Google client, then restart `bun run dev` after changing `.env`.
+
+## TanStack Form
+
+[TanStack Form](https://tanstack.com/form) is included with the shadcn/ui setup and uses [Zod](https://zod.dev/) validation.
+
+Forms use the shadcn/ui `Field` component family for layout and error display.
 
 # Learn More
 

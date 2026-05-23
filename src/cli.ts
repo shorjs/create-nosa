@@ -50,7 +50,7 @@ Options:
   -n, --name <name>         Project name (default: my-nosa-app)
   -t, --template <template> Template name (default: start)
   -s, --structure <type>    Codebase structure (simple, vertical)
-  -a, --addons <list>       Comma-separated add-ons (shadcn,tanstack-form,drizzle,betterauth,google-oauth)
+  -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth,google-oauth)
   -h, --help                Show this help message
 
 Examples:
@@ -62,13 +62,10 @@ Examples:
 
   try {
     const defaultProjectName = 'my-nosa-app'
+    const addonValues = ['shadcn', 'drizzle', 'betterauth', 'google-oauth'] as const
     const templateFolders = new Set([
       'start-simple',
       'start-simple-shadcn',
-      'start-simple-shadcn-tanstack-form',
-      'start-simple-shadcn-tanstack-form-drizzle',
-      'start-simple-shadcn-tanstack-form-drizzle-betterauth',
-      'start-simple-shadcn-tanstack-form-drizzle-betterauth-google-oauth',
       'start-simple-drizzle',
       'start-simple-drizzle-betterauth',
       'start-simple-drizzle-betterauth-google-oauth',
@@ -77,10 +74,6 @@ Examples:
       'start-simple-shadcn-drizzle-betterauth-google-oauth',
       'start-vertical',
       'start-vertical-shadcn',
-      'start-vertical-shadcn-tanstack-form',
-      'start-vertical-shadcn-tanstack-form-drizzle',
-      'start-vertical-shadcn-tanstack-form-drizzle-betterauth',
-      'start-vertical-shadcn-tanstack-form-drizzle-betterauth-google-oauth',
       'start-vertical-drizzle',
       'start-vertical-drizzle-betterauth',
       'start-vertical-drizzle-betterauth-google-oauth',
@@ -162,7 +155,10 @@ Examples:
     }
 
     const selectedAddons = flagAddons
-      ? flagAddons.split(',')
+      ? flagAddons
+          .split(',')
+          .map((addon) => addon.trim())
+          .filter(Boolean)
       : await multiselect({
           message: 'Select add-ons',
           required: false,
@@ -170,10 +166,6 @@ Examples:
             {
               value: 'shadcn',
               label: 'shadcn/ui',
-            },
-            {
-              value: 'tanstack-form',
-              label: 'TanStack Form',
             },
             {
               value: 'drizzle',
@@ -195,6 +187,14 @@ Examples:
       process.exit(0)
     }
 
+    const unsupportedAddons = selectedAddons.filter(
+      (addon) => !(addonValues as readonly string[]).includes(addon),
+    )
+
+    if (unsupportedAddons.length > 0) {
+      throw new Error(`Unsupported add-on: ${unsupportedAddons.join(', ')}`)
+    }
+
     const addonSet = new Set(selectedAddons)
 
     if (addonSet.has('google-oauth')) {
@@ -205,13 +205,7 @@ Examples:
       addonSet.add('drizzle')
     }
 
-    if (addonSet.has('tanstack-form')) {
-      addonSet.add('shadcn')
-    }
-
-    const addons = (
-      ['shadcn', 'tanstack-form', 'drizzle', 'betterauth', 'google-oauth'] as const
-    ).filter((addon) => addonSet.has(addon))
+    const addons = addonValues.filter((addon) => addonSet.has(addon))
     const templateFolder = [template, codebaseStructure, ...addons].join('-')
 
     if (!templateFolders.has(templateFolder)) {

@@ -1,5 +1,5 @@
-import { BaseExample } from '@/examples/base'
-import { DrizzleExample } from '@/examples/drizzle'
+import { BaseExample } from '@/examples/base-example'
+import { DrizzleExample } from '@/examples/drizzle-example'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 

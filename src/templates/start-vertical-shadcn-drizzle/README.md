@@ -39,7 +39,7 @@ Each directory owns its components, types, server functions, and schemas. As you
 
 ## UI Components
 
-This project uses [shadcn/ui](https://ui.shadcn.com/).
+This project uses [shadcn/ui](https://ui.shadcn.com/) with TanStack Form and Zod included.
 
 To switch to a different preset:
 
@@ -63,6 +63,12 @@ bun run db:migrate
 bun run db:push
 bun run db:studio
 ```
+
+## TanStack Form
+
+[TanStack Form](https://tanstack.com/form) is included with the shadcn/ui setup and uses [Zod](https://zod.dev/) validation.
+
+Forms use the shadcn/ui `Field` component family for layout and error display.
 
 # Learn More
 

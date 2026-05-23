@@ -1,7 +1,7 @@
-import { BaseExample } from '@/examples/base'
-import { BetterAuthExample } from '@/examples/betterauth'
-import { DrizzleExample } from '@/examples/drizzle'
-import { GoogleOAuthExample } from '@/examples/google-oauth'
+import { BaseExample } from '@/examples/base-example'
+import { BetterAuthExample } from '@/examples/betterauth-example'
+import { DrizzleExample } from '@/examples/drizzle-example'
+import { GoogleOAuthExample } from '@/examples/google-oauth-example'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 

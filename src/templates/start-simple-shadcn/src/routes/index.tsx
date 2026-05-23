@@ -1,12 +1,14 @@
-import { BaseExample } from '@/examples/base'
-import { ShadcnExample } from '@/examples/shadcn'
+import { BaseExample } from '@/examples/base-example'
+import { ShadcnExample } from '@/examples/shadcn-example'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/')({ component: RouteComponent })
 
+type ActiveExample = 'base' | 'shadcn'
+
 function RouteComponent() {
-  const [activeExample, setActiveExample] = useState<'base' | 'shadcn'>('base')
+  const [activeExample, setActiveExample] = useState<ActiveExample>('base')
 
   return (
     <div className="flex min-h-svh p-6">
@@ -41,7 +43,11 @@ function RouteComponent() {
           </div>
         </div>
         {activeExample === 'base' && <BaseExample />}
-        {activeExample === 'shadcn' && <ShadcnExample />}
+        {activeExample === 'shadcn' && (
+          <>
+            <ShadcnExample />
+          </>
+        )}
       </div>
     </div>
   )

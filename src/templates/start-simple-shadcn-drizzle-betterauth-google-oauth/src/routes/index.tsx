@@ -1,17 +1,17 @@
-import { BaseExample } from '@/examples/base'
-import { BetterAuthExample } from '@/examples/betterauth'
-import { DrizzleExample } from '@/examples/drizzle'
-import { GoogleOAuthExample } from '@/examples/google-oauth'
-import { ShadcnExample } from '@/examples/shadcn'
+import { BaseExample } from '@/examples/base-example'
+import { ShadcnExample } from '@/examples/shadcn-example'
+import { DrizzleExample } from '@/examples/drizzle-example'
+import { BetterAuthExample } from '@/examples/betterauth-example'
+import { GoogleOAuthExample } from '@/examples/google-oauth-example'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/')({ component: RouteComponent })
 
+type ActiveExample = 'base' | 'shadcn' | 'drizzle' | 'betterauth' | 'googleOauth'
+
 function RouteComponent() {
-  const [activeExample, setActiveExample] = useState<
-    'base' | 'shadcn' | 'drizzle' | 'betterauth' | 'googleOauth'
-  >('base')
+  const [activeExample, setActiveExample] = useState<ActiveExample>('base')
 
   return (
     <div className="flex min-h-svh p-6">
@@ -79,7 +79,11 @@ function RouteComponent() {
           </div>
         </div>
         {activeExample === 'base' && <BaseExample />}
-        {activeExample === 'shadcn' && <ShadcnExample />}
+        {activeExample === 'shadcn' && (
+          <>
+            <ShadcnExample />
+          </>
+        )}
         {activeExample === 'drizzle' && <DrizzleExample />}
         {activeExample === 'betterauth' && <BetterAuthExample />}
         {activeExample === 'googleOauth' && <GoogleOAuthExample />}

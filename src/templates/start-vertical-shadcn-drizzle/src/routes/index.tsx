@@ -1,13 +1,15 @@
-import { DrizzleExample } from '@/examples/drizzle-example'
-import { ShadcnExample } from '@/examples/shadcn-example'
 import { Welcome } from '@/welcome/welcome'
+import { ShadcnExample } from '@/examples/shadcn-example'
+import { DrizzleExample } from '@/examples/drizzle-example'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/')({ component: RouteComponent })
 
+type ActiveExample = 'welcome' | 'shadcn' | 'drizzle'
+
 function RouteComponent() {
-  const [activeExample, setActiveExample] = useState<'welcome' | 'shadcn' | 'drizzle'>('welcome')
+  const [activeExample, setActiveExample] = useState<ActiveExample>('welcome')
 
   return (
     <div className="flex min-h-svh p-6">
@@ -53,7 +55,11 @@ function RouteComponent() {
           </div>
         </div>
         {activeExample === 'welcome' && <Welcome />}
-        {activeExample === 'shadcn' && <ShadcnExample />}
+        {activeExample === 'shadcn' && (
+          <>
+            <ShadcnExample />
+          </>
+        )}
         {activeExample === 'drizzle' && <DrizzleExample />}
       </div>
     </div>

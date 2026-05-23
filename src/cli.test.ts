@@ -12,7 +12,7 @@ describe('cli flags', () => {
 
     const index = join(import.meta.dir, '..', 'index.ts')
     const result =
-      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons tanstack-form,google-oauth`
+      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons shadcn,google-oauth`
         .cwd(tmpDir)
         .nothrow()
 
@@ -27,9 +27,6 @@ describe('cli flags', () => {
     expect(await Bun.file(join(projectDir, 'src/design-system/ui/field.tsx')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'drizzle.config.ts')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'src/auth/auth.server.ts')).exists()).toBe(true)
-    expect(
-      await Bun.file(join(projectDir, 'src/examples/tanstack-form-example.tsx')).exists(),
-    ).toBe(true)
     expect(await Bun.file(join(projectDir, 'src/examples/betterauth-example.tsx')).exists()).toBe(
       true,
     )
@@ -45,10 +42,11 @@ describe('cli flags', () => {
     expect(authServer).toContain('google')
 
     const indexRoute = await Bun.file(join(projectDir, 'src/routes/index.tsx')).text()
-    expect(indexRoute).toContain('TanstackFormExample')
-    expect(indexRoute).toContain('TanStack Form')
     expect(indexRoute).toContain('GoogleOAuthExample')
     expect(indexRoute).toContain('Google OAuth')
+
+    const shadcnExample = await Bun.file(join(projectDir, 'src/examples/shadcn-example.tsx')).text()
+    expect(shadcnExample).toContain('useForm')
 
     const envExample = await Bun.file(join(projectDir, '.env.example')).text()
     expect(envExample).toContain('GOOGLE_CLIENT_ID=')
@@ -74,7 +72,7 @@ describe('template structure', () => {
       'src/router.tsx',
       'src/routes/__root.tsx',
       'src/routes/index.tsx',
-      'src/examples/base.tsx',
+      'src/examples/base-example.tsx',
       'src/styles.css',
     ]
 
@@ -194,8 +192,14 @@ describe('template structure', () => {
       'components.json',
       'src/components/theme-provider.tsx',
       'src/components/ui/button.tsx',
+      'src/components/ui/field.tsx',
+      'src/components/ui/input-group.tsx',
+      'src/components/ui/input.tsx',
+      'src/components/ui/label.tsx',
+      'src/components/ui/separator.tsx',
       'src/components/ui/sonner.tsx',
-      'src/examples/shadcn.tsx',
+      'src/components/ui/textarea.tsx',
+      'src/examples/shadcn-example.tsx',
       'src/lib/utils.ts',
     ])
 
@@ -242,7 +246,7 @@ describe('template structure', () => {
       'drizzle.config.ts',
       'src/db/index.ts',
       'src/db/schema.ts',
-      'src/examples/drizzle.tsx',
+      'src/examples/drizzle-example.tsx',
     ])
 
     for (const filePath of baseFiles) {
@@ -297,11 +301,17 @@ describe('template structure', () => {
       'drizzle.config.ts',
       'src/components/theme-provider.tsx',
       'src/components/ui/button.tsx',
+      'src/components/ui/field.tsx',
+      'src/components/ui/input-group.tsx',
+      'src/components/ui/input.tsx',
+      'src/components/ui/label.tsx',
+      'src/components/ui/separator.tsx',
       'src/components/ui/sonner.tsx',
+      'src/components/ui/textarea.tsx',
       'src/db/index.ts',
       'src/db/schema.ts',
-      'src/examples/drizzle.tsx',
-      'src/examples/shadcn.tsx',
+      'src/examples/drizzle-example.tsx',
+      'src/examples/shadcn-example.tsx',
       'src/lib/utils.ts',
     ])
 
@@ -349,8 +359,8 @@ describe('template structure', () => {
       'src/db/auth.schema.ts',
       'src/db/index.ts',
       'src/db/schema.ts',
-      'src/examples/betterauth.tsx',
-      'src/examples/drizzle.tsx',
+      'src/examples/betterauth-example.tsx',
+      'src/examples/drizzle-example.tsx',
       'src/lib/auth-client.ts',
       'src/lib/auth.functions.ts',
       'src/lib/auth.ts',
@@ -414,13 +424,19 @@ describe('template structure', () => {
       'drizzle.config.ts',
       'src/components/theme-provider.tsx',
       'src/components/ui/button.tsx',
+      'src/components/ui/field.tsx',
+      'src/components/ui/input-group.tsx',
+      'src/components/ui/input.tsx',
+      'src/components/ui/label.tsx',
+      'src/components/ui/separator.tsx',
       'src/components/ui/sonner.tsx',
+      'src/components/ui/textarea.tsx',
       'src/db/auth.schema.ts',
       'src/db/index.ts',
       'src/db/schema.ts',
-      'src/examples/betterauth.tsx',
-      'src/examples/drizzle.tsx',
-      'src/examples/shadcn.tsx',
+      'src/examples/betterauth-example.tsx',
+      'src/examples/drizzle-example.tsx',
+      'src/examples/shadcn-example.tsx',
       'src/lib/auth-client.ts',
       'src/lib/auth.functions.ts',
       'src/lib/auth.ts',
@@ -478,7 +494,13 @@ describe('template structure', () => {
       'components.json',
       'src/design-system/theme-provider.tsx',
       'src/design-system/ui/button.tsx',
+      'src/design-system/ui/field.tsx',
+      'src/design-system/ui/input-group.tsx',
+      'src/design-system/ui/input.tsx',
+      'src/design-system/ui/label.tsx',
+      'src/design-system/ui/separator.tsx',
       'src/design-system/ui/sonner.tsx',
+      'src/design-system/ui/textarea.tsx',
       'src/design-system/utils.ts',
       'src/examples/shadcn-example.tsx',
     ])
@@ -583,7 +605,13 @@ describe('template structure', () => {
       'src/data/db/schema.ts',
       'src/design-system/theme-provider.tsx',
       'src/design-system/ui/button.tsx',
+      'src/design-system/ui/field.tsx',
+      'src/design-system/ui/input-group.tsx',
+      'src/design-system/ui/input.tsx',
+      'src/design-system/ui/label.tsx',
+      'src/design-system/ui/separator.tsx',
       'src/design-system/ui/sonner.tsx',
+      'src/design-system/ui/textarea.tsx',
       'src/design-system/utils.ts',
       'src/examples/drizzle-example.tsx',
       'src/examples/shadcn-example.tsx',
@@ -699,7 +727,13 @@ describe('template structure', () => {
       'src/data/db/schema.ts',
       'src/design-system/theme-provider.tsx',
       'src/design-system/ui/button.tsx',
+      'src/design-system/ui/field.tsx',
+      'src/design-system/ui/input-group.tsx',
+      'src/design-system/ui/input.tsx',
+      'src/design-system/ui/label.tsx',
+      'src/design-system/ui/separator.tsx',
       'src/design-system/ui/sonner.tsx',
+      'src/design-system/ui/textarea.tsx',
       'src/design-system/utils.ts',
       'src/examples/betterauth-example.tsx',
       'src/examples/drizzle-example.tsx',
@@ -720,109 +754,6 @@ describe('template structure', () => {
     }
   })
 
-  it('keeps TanStack Form templates aligned with their shadcn templates except TanStack Form files', async () => {
-    const templatesPath = join(import.meta.dir, 'templates')
-    const files = new Glob('**/*')
-    const simpleAddedFiles = [
-      'src/components/ui/field.tsx',
-      'src/components/ui/input-group.tsx',
-      'src/components/ui/input.tsx',
-      'src/components/ui/label.tsx',
-      'src/components/ui/separator.tsx',
-      'src/components/ui/textarea.tsx',
-      'src/examples/tanstack-form.tsx',
-    ]
-    const verticalAddedFiles = [
-      'src/design-system/ui/field.tsx',
-      'src/design-system/ui/input-group.tsx',
-      'src/design-system/ui/input.tsx',
-      'src/design-system/ui/label.tsx',
-      'src/design-system/ui/separator.tsx',
-      'src/design-system/ui/textarea.tsx',
-      'src/examples/tanstack-form-example.tsx',
-    ]
-    const changedFiles = ['AGENTS.md', 'README.md', 'package.json', 'src/routes/index.tsx']
-    const variants = [
-      {
-        base: 'start-simple-shadcn',
-        form: 'start-simple-shadcn-tanstack-form',
-        addedFiles: simpleAddedFiles,
-      },
-      {
-        base: 'start-simple-shadcn-drizzle',
-        form: 'start-simple-shadcn-tanstack-form-drizzle',
-        addedFiles: simpleAddedFiles,
-      },
-      {
-        base: 'start-simple-shadcn-drizzle-betterauth',
-        form: 'start-simple-shadcn-tanstack-form-drizzle-betterauth',
-        addedFiles: simpleAddedFiles,
-      },
-      {
-        base: 'start-simple-shadcn-drizzle-betterauth-google-oauth',
-        form: 'start-simple-shadcn-tanstack-form-drizzle-betterauth-google-oauth',
-        addedFiles: simpleAddedFiles,
-      },
-      {
-        base: 'start-vertical-shadcn',
-        form: 'start-vertical-shadcn-tanstack-form',
-        addedFiles: verticalAddedFiles,
-      },
-      {
-        base: 'start-vertical-shadcn-drizzle',
-        form: 'start-vertical-shadcn-tanstack-form-drizzle',
-        addedFiles: verticalAddedFiles,
-      },
-      {
-        base: 'start-vertical-shadcn-drizzle-betterauth',
-        form: 'start-vertical-shadcn-tanstack-form-drizzle-betterauth',
-        addedFiles: verticalAddedFiles,
-      },
-      {
-        base: 'start-vertical-shadcn-drizzle-betterauth-google-oauth',
-        form: 'start-vertical-shadcn-tanstack-form-drizzle-betterauth-google-oauth',
-        addedFiles: verticalAddedFiles,
-      },
-    ]
-
-    for (const variant of variants) {
-      const baseTemplatePath = join(templatesPath, variant.base)
-      const formTemplatePath = join(templatesPath, variant.form)
-      const baseFiles = new Set(
-        await Array.fromAsync(
-          files.scan({
-            cwd: baseTemplatePath,
-            dot: true,
-            onlyFiles: true,
-          }),
-        ),
-      )
-      const formFiles = new Set(
-        await Array.fromAsync(
-          files.scan({
-            cwd: formTemplatePath,
-            dot: true,
-            onlyFiles: true,
-          }),
-        ),
-      )
-
-      expect([...formFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual(
-        variant.addedFiles,
-      )
-
-      for (const filePath of baseFiles) {
-        if (changedFiles.includes(filePath)) {
-          continue
-        }
-
-        expect(await Bun.file(join(formTemplatePath, filePath)).text()).toBe(
-          await Bun.file(join(baseTemplatePath, filePath)).text(),
-        )
-      }
-    }
-  })
-
   it('keeps Google OAuth templates aligned with their Better Auth templates except Google OAuth files', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
     const files = new Glob('**/*')
@@ -837,7 +768,7 @@ describe('template structure', () => {
           'src/lib/auth.ts',
           'src/routes/index.tsx',
         ],
-        addedFiles: ['src/examples/google-oauth.tsx'],
+        addedFiles: ['src/examples/google-oauth-example.tsx'],
       },
       {
         base: 'start-simple-shadcn-drizzle-betterauth',
@@ -849,7 +780,7 @@ describe('template structure', () => {
           'src/lib/auth.ts',
           'src/routes/index.tsx',
         ],
-        addedFiles: ['src/examples/google-oauth.tsx'],
+        addedFiles: ['src/examples/google-oauth-example.tsx'],
       },
       {
         base: 'start-vertical-drizzle-betterauth',

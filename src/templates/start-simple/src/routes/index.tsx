@@ -1,4 +1,4 @@
-import { BaseExample } from '@/examples/base'
+import { BaseExample } from '@/examples/base-example'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({ component: RouteComponent })

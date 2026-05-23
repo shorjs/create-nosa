@@ -40,7 +40,7 @@ Each directory owns its components, types, server functions, and schemas. As you
 
 ## UI Components
 
-This project uses [shadcn/ui](https://ui.shadcn.com/).
+This project uses [shadcn/ui](https://ui.shadcn.com/) with TanStack Form and Zod included.
 
 To switch to a different preset:
 
@@ -75,6 +75,12 @@ Add to your `.env`:
 BETTER_AUTH_SECRET=<run: openssl rand -base64 32>
 BETTER_AUTH_URL=http://127.0.0.1:7331
 ```
+
+## TanStack Form
+
+[TanStack Form](https://tanstack.com/form) is included with the shadcn/ui setup and uses [Zod](https://zod.dev/) validation.
+
+Forms use the shadcn/ui `Field` component family for layout and error display.
 
 # Learn More
 
