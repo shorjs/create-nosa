@@ -139,7 +139,7 @@ Better Auth adds:
 - **Auth**: [Better Auth](https://better-auth.com) with database-backed session handling and no sign-in method enabled by default
 - **Integration**: TanStack Start handler at `src/routes/api/auth/$.ts`
 - **Server functions**: session helpers in `src/lib/auth.functions.ts`
-- **Drizzle schema**: auto-generated auth tables in `src/db/auth-schema.ts`
+- **Drizzle schema**: auto-generated auth tables in `src/db/auth.schema.ts`
 - **Dependencies**: `better-auth` with `tanstackStartCookies` plugin
 
 Google OAuth adds:

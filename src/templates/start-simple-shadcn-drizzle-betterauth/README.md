@@ -49,7 +49,7 @@ BETTER_AUTH_URL=http://127.0.0.1:7331
 Generate the auth schema and push to the database:
 
 ```bash
-bunx @better-auth/cli@latest generate --output src/db/auth-schema.ts
+bunx @better-auth/cli@latest generate --output src/db/auth.schema.ts
 bun run db:push
 ```
 

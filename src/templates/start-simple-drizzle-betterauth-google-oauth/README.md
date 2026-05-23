@@ -97,7 +97,7 @@ GOOGLE_CLIENT_SECRET=<client secret>
 Generate the auth schema and push to the database:
 
 ```bash
-bunx @better-auth/cli@latest generate --output src/db/auth-schema.ts
+bunx @better-auth/cli@latest generate --output src/db/auth.schema.ts
 bun run db:push
 ```
 

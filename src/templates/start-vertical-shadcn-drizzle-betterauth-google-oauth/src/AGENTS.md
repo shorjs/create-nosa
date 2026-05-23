@@ -6,7 +6,7 @@ src/
     auth.server.ts      — server-only: betterAuth instance, DB adapter
     auth-client.ts      — isomorphic: createAuthClient (community convention)
     auth.functions.ts   — isomorphic: server functions
-    auth-schema.ts      — isomorphic: drizzle auth tables
+    auth.schema.ts      — isomorphic: drizzle auth tables
     components/
       sign-in.tsx
       sign-up.tsx
@@ -15,7 +15,7 @@ src/
     billing.functions.ts
     billing.server.ts
     billing-client.ts
-    billing-schema.ts
+    billing.schema.ts
     components/
       pricing-table.tsx
       invoice-list.tsx
@@ -24,7 +24,7 @@ src/
     teams.functions.ts
     teams.server.ts
     teams-client.ts
-    teams-schema.ts
+    teams.schema.ts
     components/
       team-switcher.tsx
       member-list.tsx
