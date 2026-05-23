@@ -70,23 +70,16 @@ Examples:
       'start-simple-drizzle-betterauth',
       'start-simple-drizzle-betterauth-google-oauth',
       'start-simple-shadcn-drizzle',
-      'start-simple-shadcn-drizzle-tanstack-form',
       'start-simple-shadcn-drizzle-betterauth',
-      'start-simple-shadcn-drizzle-betterauth-tanstack-form',
       'start-simple-shadcn-drizzle-betterauth-google-oauth',
-      'start-simple-shadcn-drizzle-betterauth-google-oauth-tanstack-form',
       'start-vertical',
       'start-vertical-shadcn',
-      'start-vertical-shadcn-tanstack-form',
       'start-vertical-drizzle',
       'start-vertical-drizzle-betterauth',
       'start-vertical-drizzle-betterauth-google-oauth',
       'start-vertical-shadcn-drizzle',
-      'start-vertical-shadcn-drizzle-tanstack-form',
       'start-vertical-shadcn-drizzle-betterauth',
-      'start-vertical-shadcn-drizzle-betterauth-tanstack-form',
       'start-vertical-shadcn-drizzle-betterauth-google-oauth',
-      'start-vertical-shadcn-drizzle-betterauth-google-oauth-tanstack-form',
     ])
 
     intro('create-nosa')
