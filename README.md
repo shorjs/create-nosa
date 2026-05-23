@@ -95,12 +95,17 @@ src/
   teams/            # Teams and collaboration domain
   data/             # Database access
   design-system/    # Shared UI primitives
+  errors/           # App-level error normalization and boundaries
   routes/           # Route definitions (required by TanStack Router)
   router.tsx        # Router configuration
   styles.css        # Global styles
 ```
 
 Each directory owns its components, hooks, server functions, types, and schemas. Add new verticals by creating a directory at `src/`. Remove a feature by deleting its directory.
+
+`data/`, `design-system/`, and `errors/` are app-level verticals: shared infrastructure that can grow with the app, not feature verticals like `auth/`, `billing/`, or `teams/`.
+
+Simple templates keep shared error normalization in `src/errors.ts`. Vertical templates use `src/errors/` because error handling can grow into reusable boundary UI, typed app errors, and reporting while staying separate from feature domains.
 
 ### Base
 

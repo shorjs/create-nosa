@@ -24,6 +24,7 @@ This template uses a **vertical codebase** — code is grouped by domain rather 
 ```
 src/
   design-system/    # UI primitives (shadcn/ui)
+  errors/           # App-level error normalization and boundaries
   welcome/          # Landing page domain
   counter/          # Interactive demo domain
   routes/           # Route definitions (required by TanStack Router)
@@ -32,6 +33,8 @@ src/
 ```
 
 Each directory owns its components, types, server functions, and schemas. As you add features, create new directories at `src/` level.
+
+`design-system/` and `errors/` are app-level verticals: shared infrastructure that can grow with the app, not feature verticals like `auth/` or `billing/`.
 
 ## UI Components
 

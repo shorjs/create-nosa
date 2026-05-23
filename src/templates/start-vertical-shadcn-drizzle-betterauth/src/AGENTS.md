@@ -39,6 +39,12 @@ src/
     ui/  (button.tsx, input.tsx, card.tsx, ...)
     utils.ts
 
+  errors/
+    errors.ts
+    error-boundary.tsx
+    reporting.client.ts
+    reporting.server.ts
+
   routes/     (required by TanStack Router)
   router.tsx
   routeTree.gen.ts
@@ -46,6 +52,8 @@ src/
 ```
 
 Each vertical owns its components, server functions, types, schemas, and hooks. Delete its directory to remove the feature.
+
+`data/`, `design-system/`, and `errors/` are app-level verticals: shared infrastructure that can grow with the app, not feature verticals like `auth/`, `billing/`, or `teams/`.
 
 ## File Naming
 

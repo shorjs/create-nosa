@@ -2,9 +2,11 @@ import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 
 import { ThemeProvider } from '@/design-system/theme-provider'
 import { Toaster } from '@/design-system/ui/sonner'
+import { ErrorBoundary } from '@/errors/error-boundary'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
+  errorComponent: ErrorBoundary,
   head: () => ({
     meta: [
       {
