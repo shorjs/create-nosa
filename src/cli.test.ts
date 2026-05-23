@@ -48,8 +48,12 @@ describe('cli flags', () => {
     expect(envExample).toContain('GOOGLE_CLIENT_ID=')
     expect(envExample).toContain('GOOGLE_CLIENT_SECRET=')
 
+    await $`bun run build`.cwd(projectDir).nothrow()
+    const lint = await $`bun run lint`.cwd(projectDir).nothrow()
+    expect(lint.exitCode).toBe(0)
+
     await rm(tmpDir, { recursive: true, force: true })
-  }, 120_000)
+  }, 180_000)
 })
 
 describe('template structure', () => {

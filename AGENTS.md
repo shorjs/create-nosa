@@ -88,6 +88,7 @@ Do not write optional code or config that only repeats a tool's default behavior
 
 - `@clack/prompts` for the interactive CLI
 - `Bun` for runtime, file system operations, and package management
+- `shadcn` — when making changes to templates that enable shadcn add-ons, load the `/shadcn` skill first
 
 # Dependency Versions
 
