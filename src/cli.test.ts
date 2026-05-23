@@ -720,6 +720,109 @@ describe('template structure', () => {
     }
   })
 
+  it('keeps TanStack Form templates aligned with their shadcn templates except TanStack Form files', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const files = new Glob('**/*')
+    const simpleAddedFiles = [
+      'src/components/ui/field.tsx',
+      'src/components/ui/input-group.tsx',
+      'src/components/ui/input.tsx',
+      'src/components/ui/label.tsx',
+      'src/components/ui/separator.tsx',
+      'src/components/ui/textarea.tsx',
+      'src/examples/tanstack-form.tsx',
+    ]
+    const verticalAddedFiles = [
+      'src/design-system/ui/field.tsx',
+      'src/design-system/ui/input-group.tsx',
+      'src/design-system/ui/input.tsx',
+      'src/design-system/ui/label.tsx',
+      'src/design-system/ui/separator.tsx',
+      'src/design-system/ui/textarea.tsx',
+      'src/examples/tanstack-form-example.tsx',
+    ]
+    const changedFiles = ['AGENTS.md', 'README.md', 'package.json', 'src/routes/index.tsx']
+    const variants = [
+      {
+        base: 'start-simple-shadcn',
+        form: 'start-simple-shadcn-tanstack-form',
+        addedFiles: simpleAddedFiles,
+      },
+      {
+        base: 'start-simple-shadcn-drizzle',
+        form: 'start-simple-shadcn-tanstack-form-drizzle',
+        addedFiles: simpleAddedFiles,
+      },
+      {
+        base: 'start-simple-shadcn-drizzle-betterauth',
+        form: 'start-simple-shadcn-tanstack-form-drizzle-betterauth',
+        addedFiles: simpleAddedFiles,
+      },
+      {
+        base: 'start-simple-shadcn-drizzle-betterauth-google-oauth',
+        form: 'start-simple-shadcn-tanstack-form-drizzle-betterauth-google-oauth',
+        addedFiles: simpleAddedFiles,
+      },
+      {
+        base: 'start-vertical-shadcn',
+        form: 'start-vertical-shadcn-tanstack-form',
+        addedFiles: verticalAddedFiles,
+      },
+      {
+        base: 'start-vertical-shadcn-drizzle',
+        form: 'start-vertical-shadcn-tanstack-form-drizzle',
+        addedFiles: verticalAddedFiles,
+      },
+      {
+        base: 'start-vertical-shadcn-drizzle-betterauth',
+        form: 'start-vertical-shadcn-tanstack-form-drizzle-betterauth',
+        addedFiles: verticalAddedFiles,
+      },
+      {
+        base: 'start-vertical-shadcn-drizzle-betterauth-google-oauth',
+        form: 'start-vertical-shadcn-tanstack-form-drizzle-betterauth-google-oauth',
+        addedFiles: verticalAddedFiles,
+      },
+    ]
+
+    for (const variant of variants) {
+      const baseTemplatePath = join(templatesPath, variant.base)
+      const formTemplatePath = join(templatesPath, variant.form)
+      const baseFiles = new Set(
+        await Array.fromAsync(
+          files.scan({
+            cwd: baseTemplatePath,
+            dot: true,
+            onlyFiles: true,
+          }),
+        ),
+      )
+      const formFiles = new Set(
+        await Array.fromAsync(
+          files.scan({
+            cwd: formTemplatePath,
+            dot: true,
+            onlyFiles: true,
+          }),
+        ),
+      )
+
+      expect([...formFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual(
+        variant.addedFiles,
+      )
+
+      for (const filePath of baseFiles) {
+        if (changedFiles.includes(filePath)) {
+          continue
+        }
+
+        expect(await Bun.file(join(formTemplatePath, filePath)).text()).toBe(
+          await Bun.file(join(baseTemplatePath, filePath)).text(),
+        )
+      }
+    }
+  })
+
   it('keeps Google OAuth templates aligned with their Better Auth templates except Google OAuth files', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
     const files = new Glob('**/*')
