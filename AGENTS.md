@@ -78,6 +78,9 @@ create-nosa
 
 # Instructions
 
+CRITICAL: NEVER commit, tag, or release without explicit user approval or without user asking explicitly.
+This is a hard rule. Do not skip it. Do not assume consent.
+
 The codebase should stay lean.
 
 Prefer inline code, logic, functions, and files first. Keep logic in place unless splitting it out is specifically requested, the complexity is already concrete, or the same implementation is being used more than two times.
