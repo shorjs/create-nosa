@@ -91,7 +91,7 @@ Code is grouped by domain rather than by technical layer. Each feature lives in 
 src/
   auth/             # Authentication domain
   billing/          # Billing domain
-  billing/          # billing plan name vs.
+  plans/            # Plan management domain
   teams/            # Teams and collaboration domain
   data/             # Database access
   design-system/    # Shared UI primitives
