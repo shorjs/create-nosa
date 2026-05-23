@@ -50,6 +50,7 @@ The generated templates include `bunfig.toml` and use Bun by default. A fresh `b
 
 ? Select add-ons
   [ ] shadcn/ui
+  [ ] TanStack Form
   [ ] Drizzle + PostgreSQL
   [ ] Better Auth
   [ ] Google OAuth
@@ -63,13 +64,13 @@ All prompts can be skipped by passing flags:
 bun create nosa --name my-app --structure simple --addons shadcn,drizzle
 ```
 
-| Flag              | Values                                                              | Description        |
-| ----------------- | ------------------------------------------------------------------- | ------------------ |
-| `-n, --name`      | any folder name                                                     | Project name       |
-| `-t, --template`  | `start`                                                             | Template           |
-| `-s, --structure` | `simple`, `vertical`                                                | Codebase structure |
-| `-a, --addons`    | `shadcn`, `drizzle`, `betterauth`, `google-oauth` (comma-separated) | Add-ons            |
-| `-h, --help`      |                                                                     | Show help          |
+| Flag              | Values                                                                               | Description        |
+| ----------------- | ------------------------------------------------------------------------------------ | ------------------ |
+| `-n, --name`      | any folder name                                                                      | Project name       |
+| `-t, --template`  | `start`                                                                              | Template           |
+| `-s, --structure` | `simple`, `vertical`                                                                 | Codebase structure |
+| `-a, --addons`    | `shadcn`, `tanstack-form`, `drizzle`, `betterauth`, `google-oauth` (comma-separated) | Add-ons            |
+| `-h, --help`      |                                                                                      | Show help          |
 
 Any omitted flag falls through to the interactive prompt for that field.
 
@@ -81,7 +82,7 @@ Current option status:
 
 - **Template**: Start
 - **Structure**: Simple and Vertical
-- **Add-ons**: shadcn/ui, Drizzle + PostgreSQL, Better Auth (auto-includes Drizzle), Google OAuth (auto-includes Better Auth and Drizzle), and their shadcn/ui variants
+- **Add-ons**: shadcn/ui, TanStack Form (auto-includes shadcn/ui), Drizzle + PostgreSQL, Better Auth (auto-includes Drizzle), Google OAuth (auto-includes Better Auth and Drizzle), and their supported combinations
 
 ## Vertical Philosophy
 
@@ -119,6 +120,12 @@ Lean TanStack Start template which includes:
 - **Component**: a generated `Button` component
 - **Utilities**: `cn()` with `clsx` and `tailwind-merge`
 - **Theme**: shadcn Tailwind CSS variables and Roboto font setup
+
+TanStack Form adds:
+
+- **Forms**: [TanStack Form](https://tanstack.com/form) with Zod validation
+- **UI**: shadcn/ui form primitives for fields, labels, inputs, and validation errors
+- **Dependency**: automatically includes shadcn/ui
 
 Drizzle + PostgreSQL adds:
 

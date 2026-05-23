@@ -12,7 +12,7 @@ describe('cli flags', () => {
 
     const index = join(import.meta.dir, '..', 'index.ts')
     const result =
-      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons shadcn,google-oauth`
+      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons tanstack-form,google-oauth`
         .cwd(tmpDir)
         .nothrow()
 
@@ -24,8 +24,12 @@ describe('cli flags', () => {
     expect(await Bun.file(join(projectDir, 'src/router.tsx')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'src/welcome/welcome.tsx')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'components.json')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'src/design-system/ui/field.tsx')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'drizzle.config.ts')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, 'src/auth/auth.server.ts')).exists()).toBe(true)
+    expect(
+      await Bun.file(join(projectDir, 'src/examples/tanstack-form-example.tsx')).exists(),
+    ).toBe(true)
     expect(await Bun.file(join(projectDir, 'src/examples/betterauth-example.tsx')).exists()).toBe(
       true,
     )
@@ -41,6 +45,8 @@ describe('cli flags', () => {
     expect(authServer).toContain('google')
 
     const indexRoute = await Bun.file(join(projectDir, 'src/routes/index.tsx')).text()
+    expect(indexRoute).toContain('TanstackFormExample')
+    expect(indexRoute).toContain('TanStack Form')
     expect(indexRoute).toContain('GoogleOAuthExample')
     expect(indexRoute).toContain('Google OAuth')
 
