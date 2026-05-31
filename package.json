@@ -35,7 +35,7 @@
     "prepare": "bun run simple-git-hooks"
   },
   "dependencies": {
-    "@clack/prompts": "1.4.0"
+    "@clack/prompts": "1.5.0"
   },
   "devDependencies": {
     "@types/bun": "1.3.14",
