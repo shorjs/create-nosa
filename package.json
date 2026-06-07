@@ -1,6 +1,6 @@
 {
   "name": "create-nosa",
-  "version": "0.0.55",
+  "version": "0.0.56",
   "description": "Create a new nosa project",
   "keywords": [
     "bun",
