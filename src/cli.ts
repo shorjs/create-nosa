@@ -20,6 +20,7 @@ export async function runCli() {
   let flagTemplate: string | undefined
   let flagStructure: string | undefined
   let flagAddons: string | undefined
+  let flagPackageManager: string | undefined
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
@@ -39,6 +40,9 @@ export async function runCli() {
       case '-a':
         flagAddons = args[++i]
         break
+      case '--package-manager':
+        flagPackageManager = args[++i] ?? ''
+        break
       case '--help':
       case '-h':
         console.log(`create-nosa - Project scaffolder for nosa
@@ -51,6 +55,7 @@ Options:
   -t, --template <template> Template name (default: start)
   -s, --structure <type>    Codebase structure (simple, vertical)
   -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth,google-oauth)
+  --package-manager <type>  Package manager (bun, pnpm); required without an interactive terminal
   -h, --help                Show this help message
 
 Examples:
@@ -82,7 +87,32 @@ Examples:
       'start-vertical-shadcn-drizzle-betterauth-google-oauth',
     ])
 
+    if (flagPackageManager !== undefined && !['bun', 'pnpm'].includes(flagPackageManager)) {
+      throw new Error('Unsupported package manager. Use --package-manager bun or pnpm.')
+    }
+
+    if (flagPackageManager === undefined && !process.stdin.isTTY) {
+      throw new Error(
+        'A package manager is required without an interactive terminal. Use --package-manager bun or pnpm.',
+      )
+    }
+
     intro('create-nosa')
+
+    const packageManager =
+      flagPackageManager ??
+      (await select({
+        message: 'Select a package manager',
+        options: [
+          { value: 'bun', label: 'Bun' },
+          { value: 'pnpm', label: 'pnpm' },
+        ],
+      }))
+
+    if (isCancel(packageManager)) {
+      cancel('Operation cancelled.')
+      process.exit(0)
+    }
 
     const projectName =
       flagName ??

@@ -5,6 +5,35 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 describe('cli flags', () => {
+  it('rejects missing package manager without an interactive terminal', async () => {
+    const index = join(import.meta.dir, '..', 'index.ts')
+    const result = await $`bun run ${index} --name missing-manager`.nothrow().quiet()
+
+    expect(result.exitCode).not.toBe(0)
+    expect(result.stdout.toString()).toContain('A package manager is required')
+  })
+
+  it('rejects invalid or missing package manager values', async () => {
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    for (const args of [['--package-manager', 'npm'], ['--package-manager']]) {
+      const result = await $`bun run ${index} ${args}`.nothrow().quiet()
+      expect(result.exitCode).not.toBe(0)
+      expect(result.stdout.toString()).toContain('Unsupported package manager')
+    }
+  })
+
+  it('accepts an explicit pnpm flag before validating the template', async () => {
+    const index = join(import.meta.dir, '..', 'index.ts')
+    const result =
+      await $`bun run ${index} --name input-check --template invalid --structure simple --addons shadcn --package-manager pnpm`
+        .nothrow()
+        .quiet()
+
+    expect(result.stdout.toString()).toContain('Unsupported template combination')
+    expect(result.stdout.toString()).not.toContain('Unsupported package manager')
+  })
+
   it('scaffolds a project with all flags', async () => {
     const tmpDir = join(tmpdir(), 'create-nosa-e2e')
     await rm(tmpDir, { recursive: true, force: true })
@@ -12,7 +41,7 @@ describe('cli flags', () => {
 
     const index = join(import.meta.dir, '..', 'index.ts')
     const result =
-      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons shadcn,google-oauth`
+      await $`bun run ${index} --name e2e-test --template start --structure vertical --addons shadcn,google-oauth --package-manager bun`
         .cwd(tmpDir)
         .nothrow()
 
