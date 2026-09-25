@@ -221,6 +221,16 @@ describe('template structure', () => {
 
     for (const folder of folders) {
       const pkg = JSON.parse(await Bun.file(join(templatesPath, folder, 'package.json')).text())
+      expect(pkg.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
+      expect(pkg['nano-staged']['*']).toBe('pnpm run fmt --no-error-on-unmatched-pattern')
+      expect(pkg['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}']).toBe('pnpm run lint:fix')
+      expect(await Bun.file(join(templatesPath, folder, 'bunfig.toml')).exists()).toBe(false)
+      expect(await Bun.file(join(templatesPath, folder, 'pnpm-workspace.yaml')).exists()).toBe(true)
+      for (const file of ['README.md', 'AGENTS.md', '_gitignore']) {
+        expect(await Bun.file(join(templatesPath, folder, file)).text()).not.toMatch(
+          /\bbun(?:x)?\b/i,
+        )
+      }
 
       for (const version of Object.values({ ...pkg.dependencies, ...pkg.devDependencies })) {
         expect(version).toMatch(/^\d+\.\d+\.\d+$/)
@@ -234,7 +244,7 @@ describe('template structure', () => {
       'package.json',
       'tsconfig.json',
       'vite.config.ts',
-      'bunfig.toml',
+      'pnpm-workspace.yaml',
       'src/errors.ts',
       'src/router.tsx',
       'src/routes/__root.tsx',
@@ -255,7 +265,7 @@ describe('template structure', () => {
       'package.json',
       'tsconfig.json',
       'vite.config.ts',
-      'bunfig.toml',
+      'pnpm-workspace.yaml',
       'src/errors/errors.ts',
       'src/errors/error-boundary.tsx',
       'src/router.tsx',

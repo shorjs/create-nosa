@@ -2,19 +2,19 @@ Welcome to your new TanStack Start app!
 
 # Prerequisites
 
-- [Bun](https://bun.sh/) v1.x
+- Node.js v24.x and pnpm
 
 # Getting Started
 
 ```bash
-bun install
-bun run dev
+pnpm install
+pnpm run dev
 ```
 
 # Building For Production
 
 ```bash
-bun run build
+pnpm run build
 ```
 
 # Project Structure

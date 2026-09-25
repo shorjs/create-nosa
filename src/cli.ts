@@ -242,10 +242,6 @@ Examples:
       dot: true,
       onlyFiles: true,
     })) {
-      if (filePath === 'bun.lock' || filePath === 'bunfig.toml') {
-        continue
-      }
-
       const targetRelativeFilePath = filePath
         .split('/')
         .map((pathSegment) => (pathSegment === '_gitignore' ? '.gitignore' : pathSegment))
@@ -253,27 +249,8 @@ Examples:
       const targetFilePath = join(targetPath, targetRelativeFilePath)
 
       await mkdir(dirname(targetFilePath), { recursive: true })
-      const templateFile = Bun.file(join(templatePath, filePath))
-
-      if (['README.md', 'AGENTS.md', '_gitignore'].includes(filePath)) {
-        const content = (await templateFile.text())
-          .replaceAll('[Bun](https://bun.sh/) v1.x', 'Node.js v24.x and pnpm')
-          .replaceAll(
-            'This is because `bunfig.toml` forces Bun, but the Better Auth CLI produces garbled output when run via Bun. Always copy and run the printed command with `npx` (Node/npm) instead of `bun`.',
-            'Run the printed command with `npx` (Node/npm).',
-          )
-          .replaceAll('bunx ', 'pnpm exec ')
-          .replaceAll(/\bbun\b(?=\s+(?:install|run|dev|build|db:|auth:|fmt|lint))/g, 'pnpm')
-        await Bun.write(targetFilePath, content)
-      } else {
-        await Bun.write(targetFilePath, templateFile)
-      }
+      await Bun.write(targetFilePath, Bun.file(join(templatePath, filePath)))
     }
-
-    await Bun.write(
-      join(targetPath, 'pnpm-workspace.yaml'),
-      'allowBuilds:\n  esbuild: true\n  msw: false\n  simple-git-hooks: true\n',
-    )
 
     const packageJsonPath = join(targetPath, 'package.json')
     const packageJson = await Bun.file(packageJsonPath).json()
@@ -284,16 +261,6 @@ Examples:
       .replace(/[^a-z\d\-~]+/g, '-')
 
     packageJson.name = packageName || 'app'
-
-    packageJson.scripts.postinstall = 'pnpm exec simple-git-hooks'
-    packageJson['nano-staged']['*'] = 'pnpm run fmt --no-error-on-unmatched-pattern'
-    packageJson['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}'] = 'pnpm run lint:fix'
-    if (packageJson.scripts['auth:generate']) {
-      packageJson.scripts['auth:generate'] = packageJson.scripts['auth:generate'].replace(
-        ' (not bun)',
-        '',
-      )
-    }
 
     await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 

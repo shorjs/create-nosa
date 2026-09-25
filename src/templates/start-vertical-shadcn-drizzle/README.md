@@ -2,22 +2,22 @@ Welcome to your new TanStack Start app!
 
 # Prerequisites
 
-- [Bun](https://bun.sh/) v1.x
+- Node.js v24.x and pnpm
 
 # Getting Started
 
 ```bash
 cp .env.example .env
 # Fill in your DATABASE_URL in .env, then:
-bun install
-bun run db:push
-bun run dev
+pnpm install
+pnpm run db:push
+pnpm run dev
 ```
 
 # Building For Production
 
 ```bash
-bun run build
+pnpm run build
 ```
 
 # Project Structure
@@ -47,7 +47,7 @@ This project uses [shadcn/ui](https://ui.shadcn.com/) with TanStack Form and Zod
 To switch to a different preset:
 
 ```bash
-bunx shadcn apply --preset <preset-code>
+pnpm exec shadcn apply --preset <preset-code>
 ```
 
 Named presets include `nova`, `vega`, `maia`, `lyra`, `mira`, `luma`.
@@ -61,10 +61,10 @@ Copy `.env.example` to `.env` and fill in your `DATABASE_URL`.
 Available commands:
 
 ```bash
-bun run db:generate
-bun run db:migrate
-bun run db:push
-bun run db:studio
+pnpm run db:generate
+pnpm run db:migrate
+pnpm run db:push
+pnpm run db:studio
 ```
 
 ## TanStack Form
