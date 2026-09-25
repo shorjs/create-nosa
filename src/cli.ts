@@ -20,7 +20,6 @@ export async function runCli() {
   let flagTemplate: string | undefined
   let flagStructure: string | undefined
   let flagAddons: string | undefined
-  let flagPackageManager: string | undefined
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
@@ -40,9 +39,10 @@ export async function runCli() {
       case '-a':
         flagAddons = args[++i]
         break
+
       case '--package-manager':
-        flagPackageManager = args[++i] ?? ''
-        break
+        console.error('Generated projects use pnpm only; --package-manager is no longer supported.')
+        process.exit(1)
       case '--help':
       case '-h':
         console.log(`create-nosa - Project scaffolder for nosa
@@ -55,7 +55,7 @@ Options:
   -t, --template <template> Template name (default: start)
   -s, --structure <type>    Codebase structure (simple, vertical)
   -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth,google-oauth)
-  --package-manager <type>  Package manager (bun, pnpm); required without an interactive terminal
+
   -h, --help                Show this help message
 
 Examples:
@@ -87,32 +87,7 @@ Examples:
       'start-vertical-shadcn-drizzle-betterauth-google-oauth',
     ])
 
-    if (flagPackageManager !== undefined && !['bun', 'pnpm'].includes(flagPackageManager)) {
-      throw new Error('Unsupported package manager. Use --package-manager bun or pnpm.')
-    }
-
-    if (flagPackageManager === undefined && !process.stdin.isTTY) {
-      throw new Error(
-        'A package manager is required without an interactive terminal. Use --package-manager bun or pnpm.',
-      )
-    }
-
     intro('create-nosa')
-
-    const packageManager =
-      flagPackageManager ??
-      (await select({
-        message: 'Select a package manager',
-        options: [
-          { value: 'bun', label: 'Bun' },
-          { value: 'pnpm', label: 'pnpm' },
-        ],
-      }))
-
-    if (isCancel(packageManager)) {
-      cancel('Operation cancelled.')
-      process.exit(0)
-    }
 
     const projectName =
       flagName ??
@@ -244,8 +219,8 @@ Examples:
 
     const normalizedProjectName = (projectName || defaultProjectName).trim()
 
-    if (!Bun.which(packageManager)) {
-      throw new Error(`${packageManager} is not installed. Install it before creating a project.`)
+    if (!Bun.which('pnpm')) {
+      throw new Error('pnpm is not installed. Install it before creating a project.')
     }
 
     const targetPath = resolve(process.cwd(), normalizedProjectName)
@@ -267,7 +242,7 @@ Examples:
       dot: true,
       onlyFiles: true,
     })) {
-      if (filePath === (packageManager === 'bun' ? 'pnpm-lock.yaml' : 'bun.lock')) {
+      if (filePath === 'bun.lock' || filePath === 'bunfig.toml') {
         continue
       }
 
@@ -278,8 +253,27 @@ Examples:
       const targetFilePath = join(targetPath, targetRelativeFilePath)
 
       await mkdir(dirname(targetFilePath), { recursive: true })
-      await Bun.write(targetFilePath, Bun.file(join(templatePath, filePath)))
+      const templateFile = Bun.file(join(templatePath, filePath))
+
+      if (['README.md', 'AGENTS.md', '_gitignore'].includes(filePath)) {
+        const content = (await templateFile.text())
+          .replaceAll('[Bun](https://bun.sh/) v1.x', 'Node.js v24.x and pnpm')
+          .replaceAll(
+            'This is because `bunfig.toml` forces Bun, but the Better Auth CLI produces garbled output when run via Bun. Always copy and run the printed command with `npx` (Node/npm) instead of `bun`.',
+            'Run the printed command with `npx` (Node/npm).',
+          )
+          .replaceAll('bunx ', 'pnpm exec ')
+          .replaceAll(/\bbun\b(?=\s+(?:install|run|dev|build|db:|auth:|fmt|lint))/g, 'pnpm')
+        await Bun.write(targetFilePath, content)
+      } else {
+        await Bun.write(targetFilePath, templateFile)
+      }
     }
+
+    await Bun.write(
+      join(targetPath, 'pnpm-workspace.yaml'),
+      'allowBuilds:\n  esbuild: true\n  msw: false\n  simple-git-hooks: true\n',
+    )
 
     const packageJsonPath = join(targetPath, 'package.json')
     const packageJson = await Bun.file(packageJsonPath).json()
@@ -291,10 +285,14 @@ Examples:
 
     packageJson.name = packageName || 'app'
 
-    if (packageManager === 'pnpm') {
-      packageJson.scripts.postinstall = 'pnpm exec simple-git-hooks'
-      packageJson['nano-staged']['*'] = 'pnpm run fmt --no-error-on-unmatched-pattern'
-      packageJson['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}'] = 'pnpm run lint:fix'
+    packageJson.scripts.postinstall = 'pnpm exec simple-git-hooks'
+    packageJson['nano-staged']['*'] = 'pnpm run fmt --no-error-on-unmatched-pattern'
+    packageJson['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}'] = 'pnpm run lint:fix'
+    if (packageJson.scripts['auth:generate']) {
+      packageJson.scripts['auth:generate'] = packageJson.scripts['auth:generate'].replace(
+        ' (not bun)',
+        '',
+      )
     }
 
     await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
@@ -311,18 +309,13 @@ Examples:
       throw error
     }
 
-    const managerLabel = packageManager === 'bun' ? 'Bun' : 'pnpm'
-    operation.start(`Installing dependencies with ${managerLabel}`)
+    operation.start('Installing dependencies with pnpm')
 
     try {
-      if (packageManager === 'bun') {
-        await $`bun install`.cwd(targetPath).quiet()
-      } else {
-        await $`pnpm install`.cwd(targetPath).quiet()
-      }
-      operation.stop(`Installed dependencies with ${managerLabel}`)
+      await $`pnpm install`.cwd(targetPath).quiet()
+      operation.stop('Installed dependencies with pnpm')
     } catch (error) {
-      operation.error(`Failed to install dependencies with ${managerLabel}`)
+      operation.error('Failed to install dependencies with pnpm')
       throw error
     }
 
@@ -333,16 +326,14 @@ Examples:
       ),
     )
 
-    const devCommand = packageManager === 'bun' ? 'bun run dev' : 'pnpm dev'
-
     outro(`Created ${normalizedProjectName}
 ${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
 
 Next commands:
   cd ${normalizedProjectName}
-  ${devCommand}
+  pnpm dev
 
-Note: The first time you run \`${devCommand}\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
+Note: The first time you run \`pnpm dev\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
   } catch (error) {
     cancel(error instanceof Error ? error.message : 'Unexpected error.')
     process.exit(1)
