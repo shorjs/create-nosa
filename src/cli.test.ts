@@ -258,6 +258,15 @@ describe('template structure', () => {
       expect(pkg.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
       expect(pkg['nano-staged']['*']).toBe('pnpm run fmt --no-error-on-unmatched-pattern')
       expect(pkg['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}']).toBe('pnpm run lint:fix')
+      if (folder.includes('betterauth')) {
+        const config = folder.includes('simple') ? './src/lib/auth.ts' : './src/auth/auth.server.ts'
+        const output = folder.includes('simple')
+          ? './src/db/auth.schema.ts'
+          : './src/auth/auth.schema.ts'
+        expect(pkg.scripts['auth:generate']).toBe(
+          `pnpm dlx @better-auth/cli@1.4.21 generate --config ${config} --output ${output} --yes`,
+        )
+      }
 
       expect(await Bun.file(join(templatesPath, folder, 'pnpm-workspace.yaml')).exists()).toBe(true)
 

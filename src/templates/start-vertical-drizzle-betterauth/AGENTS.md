@@ -20,6 +20,6 @@ If you edit Drizzle schema files, validate the change with `pnpm db:push` and re
 
 ## Better Auth Schema Generation
 
-The `auth:generate` script prints the `npx @better-auth/cli@1.4.21` command rather than running it directly. Run the printed command with `npx` (Node/npm).
+Run `pnpm auth:generate` to generate the Better Auth schema with the pinned CLI version.
 
 The CLI version is pinned to `1.4.21`. Do not update it without testing.
