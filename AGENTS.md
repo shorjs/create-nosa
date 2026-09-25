@@ -103,18 +103,7 @@ Before adding or updating a dependency, always check `https://npmx.dev/package/<
 
 ## Compatibility
 
-`create-nosa` runs on Bun and uses Bun for its own dependency management. Generated projects use Node.js and pnpm only; they must not require Bun. Other package runners can invoke the CLI when Bun is installed:
-
-```bash
-# npx
-npx create nosa
-# yarn dlx
-yarn dlx create nosa
-# pnpm dlx
-pnpm dlx create nosa
-```
-
-Those invocation methods do not affect generated output: the CLI runs `pnpm install`, creates `pnpm-lock.yaml`, and prints pnpm next steps.
+`create-nosa` runs on Bun and uses Bun for its own dependency management. Generated projects use Node.js and pnpm only; they must not require Bun. The supported CLI invocations are `bun create nosa`, `npm create nosa`, and `pnpm create nosa`; Bun must be installed to run the CLI. Each supported invocation produces pnpm output: the CLI runs `pnpm install`, creates `pnpm-lock.yaml`, and prints pnpm next steps.
 
 ## Implementation
 

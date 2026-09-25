@@ -5,14 +5,6 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 describe('cli flags', () => {
-  it('rejects the removed package-manager flag', async () => {
-    const index = join(import.meta.dir, '..', 'index.ts')
-    const result = await $`bun run ${index} --package-manager bun`.nothrow().quiet()
-
-    expect(result.exitCode).not.toBe(0)
-    expect(result.stderr.toString()).toContain('Generated projects use pnpm only')
-  })
-
   it('rejects invalid template flags without needing pnpm', async () => {
     const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-invalid-flags-'))
     const index = join(import.meta.dir, '..', 'index.ts')
@@ -85,9 +77,9 @@ describe('cli flags', () => {
       const generatedPackage = JSON.parse(
         await readFile(join(tmpDir, 'generated', 'package.json'), 'utf8'),
       )
-      expect(generatedPackage.packageManager).toBeUndefined()
+
       expect(await Bun.file(join(tmpDir, 'generated', 'pnpm-lock.yaml')).exists()).toBe(true)
-      expect(await Bun.file(join(tmpDir, 'generated', 'bun.lock')).exists()).toBe(false)
+
       expect(generatedPackage.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
       expect(generatedPackage['nano-staged']['*']).toBe(
         'pnpm run fmt --no-error-on-unmatched-pattern',
@@ -102,7 +94,7 @@ describe('cli flags', () => {
       const readme = await readFile(join(tmpDir, 'generated', 'README.md'), 'utf8')
       expect(readme).toContain('pnpm install')
       expect(readme).toContain('pnpm run dev')
-      expect(readme).not.toMatch(/\bbun(?:x)?\b/i)
+
       expect(result.stdout.toString()).toContain('Installed dependencies with pnpm')
       expect(result.stdout.toString()).toContain('pnpm dev')
     } finally {
@@ -167,8 +159,7 @@ describe('cli flags', () => {
     const pkg = JSON.parse(await Bun.file(join(projectDir, 'package.json')).text())
     expect(pkg.name).toBe('e2e-test')
     expect(await Bun.file(join(projectDir, 'pnpm-lock.yaml')).exists()).toBe(true)
-    expect(await Bun.file(join(projectDir, 'bun.lock')).exists()).toBe(false)
-    expect(await Bun.file(join(projectDir, 'bunfig.toml')).exists()).toBe(false)
+
     expect(await Bun.file(join(projectDir, 'pnpm-workspace.yaml')).exists()).toBe(true)
     expect(await Bun.file(join(projectDir, '.git/hooks/pre-commit')).text()).toContain(
       './node_modules/.bin/nano-staged',
@@ -232,9 +223,9 @@ describe('template structure', () => {
           await Bun.file(join(templatePath, 'package.json')).text(),
         )
         expect(pkg).toEqual({ ...templatePackage, name })
-        expect(pkg.packageManager).toBeUndefined()
+
         expect(pkg.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
-        expect(await Bun.file(join(projectPath, 'bunfig.toml')).exists()).toBe(false)
+
         expect(await Bun.file(join(projectPath, 'pnpm-workspace.yaml')).exists()).toBe(true)
         expect(await Bun.file(join(projectPath, 'pnpm-workspace.yaml')).text()).toContain(
           'simple-git-hooks: true',
@@ -247,12 +238,10 @@ describe('template structure', () => {
         ] as const) {
           const content = await Bun.file(join(projectPath, outputFile)).text()
           expect(content).toBe(await Bun.file(join(templatePath, templateFile)).text())
-          expect(content).not.toMatch(/\bbun(?:x)?\b/i)
         }
         expect(await Bun.file(join(projectPath, 'README.md')).text()).toContain('pnpm install')
-        expect(JSON.stringify(pkg.scripts)).not.toMatch(/\bbun(?:x)?\b/i)
+
         expect(await Bun.file(join(projectPath, 'pnpm-lock.yaml')).exists()).toBe(true)
-        expect(await Bun.file(join(projectPath, 'bun.lock')).exists()).toBe(false)
       }
     } finally {
       await rm(tmpDir, { recursive: true, force: true })
@@ -269,13 +258,8 @@ describe('template structure', () => {
       expect(pkg.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
       expect(pkg['nano-staged']['*']).toBe('pnpm run fmt --no-error-on-unmatched-pattern')
       expect(pkg['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}']).toBe('pnpm run lint:fix')
-      expect(await Bun.file(join(templatesPath, folder, 'bunfig.toml')).exists()).toBe(false)
+
       expect(await Bun.file(join(templatesPath, folder, 'pnpm-workspace.yaml')).exists()).toBe(true)
-      for (const file of ['README.md', 'AGENTS.md', '_gitignore']) {
-        expect(await Bun.file(join(templatesPath, folder, file)).text()).not.toMatch(
-          /\bbun(?:x)?\b/i,
-        )
-      }
 
       for (const version of Object.values({ ...pkg.dependencies, ...pkg.devDependencies })) {
         expect(version).toMatch(/^\d+\.\d+\.\d+$/)

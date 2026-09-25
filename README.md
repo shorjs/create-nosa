@@ -14,27 +14,15 @@ Nix users can optionally run `nix develop` for the generator's Bun-based maintai
 
 ## Usage
 
-With Bun:
+Run the generator with any of these commands:
 
 ```bash
-bun create nosa@latest
+bun create nosa
+npm create nosa
+pnpm create nosa
 ```
 
-You can also run the package directly:
-
-```bash
-bunx --bun create-nosa@latest
-```
-
-Other package runners can invoke the Bun-based CLI too (Bun must still be installed):
-
-```bash
-npx create nosa
-yarn dlx create nosa
-pnpm dlx create nosa
-```
-
-Every generated project uses pnpm. The CLI runs `pnpm install` and creates `pnpm-lock.yaml`; generated projects do not require Bun.
+Bun is required to run the CLI, regardless of which command launches it. Every generated project uses pnpm: the CLI runs `pnpm install` and creates `pnpm-lock.yaml`; generated projects do not require Bun.
 
 ## Interactive Flow
 
