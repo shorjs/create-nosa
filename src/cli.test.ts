@@ -70,7 +70,7 @@ describe('cli flags', () => {
       for (const command of ['bun', 'pnpm', 'git']) {
         await writeFile(
           join(binDir, command),
-          `#!/bin/sh\nprintf '%s %s\\n' '${command}' "$*" >> "$INSTALL_LOG"\nexit 0\n`,
+          `#!/bin/sh\nprintf '%s %s\\n' '${command}' "$*" >> "$INSTALL_LOG"\nif [ "$1" = install ]; then : > '${command === 'bun' ? 'bun.lock' : 'pnpm-lock.yaml'}'; fi\nexit 0\n`,
           { mode: 0o755 },
         )
       }
@@ -86,6 +86,17 @@ describe('cli flags', () => {
       const generatedPackage = JSON.parse(
         await readFile(join(tmpDir, 'generated', 'package.json'), 'utf8'),
       )
+      expect(generatedPackage.packageManager).toBeUndefined()
+      expect(
+        await Bun.file(
+          join(tmpDir, 'generated', manager === 'bun' ? 'bun.lock' : 'pnpm-lock.yaml'),
+        ).exists(),
+      ).toBe(true)
+      expect(
+        await Bun.file(
+          join(tmpDir, 'generated', manager === 'bun' ? 'pnpm-lock.yaml' : 'bun.lock'),
+        ).exists(),
+      ).toBe(false)
       expect(generatedPackage.scripts.postinstall).toBe(
         manager === 'bun' ? 'bunx --bun simple-git-hooks' : 'pnpm exec simple-git-hooks',
       )
@@ -193,6 +204,62 @@ describe('cli flags', () => {
 })
 
 describe('template structure', () => {
+  it('generates the selected manifest and lockfile for all 16 variants', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-lockfile-variants-'))
+    const binDir = join(tmpDir, 'bin')
+    const index = join(import.meta.dir, '..', 'index.ts')
+    const folders = await readdir(join(import.meta.dir, 'templates'))
+
+    try {
+      await mkdir(binDir)
+      await writeFile(join(binDir, 'git'), '#!/bin/sh\nexit 0\n', { mode: 0o755 })
+      for (const [manager, lockfile] of [
+        ['bun', 'bun.lock'],
+        ['pnpm', 'pnpm-lock.yaml'],
+      ] as const) {
+        await writeFile(join(binDir, manager), `#!/bin/sh\n: > ${lockfile}\n`, { mode: 0o755 })
+      }
+
+      for (const folder of folders) {
+        const structure = folder.startsWith('start-simple') ? 'simple' : 'vertical'
+        const addons = ['shadcn', 'drizzle', 'betterauth', 'google-oauth'].filter((addon) =>
+          folder.includes(addon),
+        )
+        for (const manager of ['bun', 'pnpm'] as const) {
+          const name = `${folder}-${manager}`
+          const addonFlag = addons.length > 0 ? addons.join(',') : ','
+          const result =
+            await $`${process.execPath} run ${index} --name ${name} --template start --structure ${structure} --addons ${addonFlag} --package-manager ${manager}`
+              .cwd(tmpDir)
+              .env({ ...process.env, PATH: binDir })
+              .nothrow()
+              .quiet()
+
+          expect(result.exitCode).toBe(0)
+          const projectPath = join(tmpDir, name)
+          const pkg = JSON.parse(await Bun.file(join(projectPath, 'package.json')).text())
+          expect(pkg.name).toBe(name)
+          expect(pkg.packageManager).toBeUndefined()
+          expect(pkg.scripts.postinstall).toBe(
+            manager === 'bun' ? 'bunx --bun simple-git-hooks' : 'pnpm exec simple-git-hooks',
+          )
+          expect(
+            await Bun.file(
+              join(projectPath, manager === 'bun' ? 'bun.lock' : 'pnpm-lock.yaml'),
+            ).exists(),
+          ).toBe(true)
+          expect(
+            await Bun.file(
+              join(projectPath, manager === 'bun' ? 'pnpm-lock.yaml' : 'bun.lock'),
+            ).exists(),
+          ).toBe(false)
+        }
+      }
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  }, 60_000)
+
   it('keeps Bun hook scripts and exact stable dependency versions in all 16 templates', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
     const folders = await readdir(templatesPath)

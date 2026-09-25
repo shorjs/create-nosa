@@ -267,6 +267,10 @@ Examples:
       dot: true,
       onlyFiles: true,
     })) {
+      if (filePath === (packageManager === 'bun' ? 'pnpm-lock.yaml' : 'bun.lock')) {
+        continue
+      }
+
       const targetRelativeFilePath = filePath
         .split('/')
         .map((pathSegment) => (pathSegment === '_gitignore' ? '.gitignore' : pathSegment))
