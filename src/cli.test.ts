@@ -1,6 +1,6 @@
 import { $, Glob } from 'bun'
 import { describe, expect, it } from 'bun:test'
-import { rm, mkdir, mkdtemp, symlink, stat, writeFile, readFile } from 'node:fs/promises'
+import { rm, mkdir, mkdtemp, symlink, stat, writeFile, readFile, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -83,10 +83,27 @@ describe('cli flags', () => {
           .quiet()
 
       expect(result.exitCode).toBe(0)
-      expect(await readFile(logPath, 'utf8')).toContain(`${manager} install`)
-      expect(await readFile(logPath, 'utf8')).not.toContain(
-        `${manager === 'bun' ? 'pnpm' : 'bun'} install`,
+      const generatedPackage = JSON.parse(
+        await readFile(join(tmpDir, 'generated', 'package.json'), 'utf8'),
       )
+      expect(generatedPackage.scripts.postinstall).toBe(
+        manager === 'bun' ? 'bunx --bun simple-git-hooks' : 'pnpm exec simple-git-hooks',
+      )
+      expect(generatedPackage['nano-staged']['*']).toBe(
+        manager === 'bun'
+          ? 'bun run fmt --no-error-on-unmatched-pattern'
+          : 'pnpm run fmt --no-error-on-unmatched-pattern',
+      )
+      expect(generatedPackage['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}']).toBe(
+        manager === 'bun' ? 'bun run lint:fix' : 'pnpm run lint:fix',
+      )
+      expect(generatedPackage['simple-git-hooks']['pre-commit']).toBe(
+        './node_modules/.bin/nano-staged',
+      )
+      const commands = await readFile(logPath, 'utf8')
+      expect(commands).toContain(`${manager} install`)
+      expect(commands).not.toContain(`${manager === 'bun' ? 'pnpm' : 'bun'} install`)
+      expect(commands.indexOf('git init')).toBeLessThan(commands.indexOf(`${manager} install`))
       expect(result.stdout.toString()).toContain(
         `Installed dependencies with ${manager === 'bun' ? 'Bun' : 'pnpm'}`,
       )
@@ -104,6 +121,7 @@ describe('cli flags', () => {
     try {
       await mkdir(binDir)
       await writeFile(join(binDir, 'pnpm'), '#!/bin/sh\nexit 1\n', { mode: 0o755 })
+      await writeFile(join(binDir, 'git'), '#!/bin/sh\nexit 0\n', { mode: 0o755 })
       const result =
         await $`${process.execPath} run ${index} --name generated --template start --structure simple --addons shadcn --package-manager pnpm`
           .cwd(tmpDir)
@@ -175,6 +193,23 @@ describe('cli flags', () => {
 })
 
 describe('template structure', () => {
+  it('keeps Bun hook scripts and exact stable dependency versions in all 16 templates', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const folders = await readdir(templatesPath)
+    expect(folders).toHaveLength(16)
+
+    for (const folder of folders) {
+      const pkg = JSON.parse(await Bun.file(join(templatesPath, folder, 'package.json')).text())
+      expect(pkg.scripts.postinstall).toBe('bunx --bun simple-git-hooks')
+      expect(pkg['nano-staged']['*']).toBe('bun run fmt --no-error-on-unmatched-pattern')
+      expect(pkg['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}']).toBe('bun run lint:fix')
+      expect(pkg['simple-git-hooks']['pre-commit']).toBe('./node_modules/.bin/nano-staged')
+
+      for (const version of Object.values({ ...pkg.dependencies, ...pkg.devDependencies })) {
+        expect(version).toMatch(/^\d+\.\d+\.\d+$/)
+      }
+    }
+  })
   it('has all core template files for start-simple', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
 

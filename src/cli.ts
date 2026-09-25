@@ -286,9 +286,26 @@ Examples:
       .replace(/[^a-z\d\-~]+/g, '-')
 
     packageJson.name = packageName || 'app'
+
+    if (packageManager === 'pnpm') {
+      packageJson.scripts.postinstall = 'pnpm exec simple-git-hooks'
+      packageJson['nano-staged']['*'] = 'pnpm run fmt --no-error-on-unmatched-pattern'
+      packageJson['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}'] = 'pnpm run lint:fix'
+    }
+
     await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 
     const operation = spinner()
+
+    operation.start('Initializing git')
+
+    try {
+      await $`git init`.cwd(targetPath).quiet()
+      operation.stop('Initialized git')
+    } catch (error) {
+      operation.error('Failed to initialize git')
+      throw error
+    }
 
     const managerLabel = packageManager === 'bun' ? 'Bun' : 'pnpm'
     operation.start(`Installing dependencies with ${managerLabel}`)
@@ -302,16 +319,6 @@ Examples:
       operation.stop(`Installed dependencies with ${managerLabel}`)
     } catch (error) {
       operation.error(`Failed to install dependencies with ${managerLabel}`)
-      throw error
-    }
-
-    operation.start('Initializing git')
-
-    try {
-      await $`git init`.cwd(targetPath).quiet()
-      operation.stop('Initialized git')
-    } catch (error) {
-      operation.error('Failed to initialize git')
       throw error
     }
 
