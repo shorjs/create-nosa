@@ -14,8 +14,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "auth:generate": "echo 'npx @better-auth/cli@1.4.21 generate --config ./src/auth/auth.server.ts --output ./src/auth/auth.schema.ts --yes' && echo '> Run this manually with npx (not bun)'",
-    "postinstall": "bunx --bun simple-git-hooks"
+    "auth:generate": "pnpm dlx @better-auth/cli@1.4.21 generate --config ./src/auth/auth.server.ts --output ./src/auth/auth.schema.ts --yes",
+    "postinstall": "pnpm exec simple-git-hooks"
   },
   "dependencies": {
     "@tailwindcss/vite": "4.3.0",
@@ -46,7 +46,7 @@
     "pre-commit": "./node_modules/.bin/nano-staged"
   },
   "nano-staged": {
-    "*": "bun run fmt --no-error-on-unmatched-pattern",
-    "*.{js,jsx,ts,tsx,mjs,cjs}": "bun run lint:fix"
+    "*": "pnpm run fmt --no-error-on-unmatched-pattern",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "pnpm run lint:fix"
   }
 }

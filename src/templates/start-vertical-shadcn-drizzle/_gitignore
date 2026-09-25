@@ -1,7 +1,7 @@
 # Finder (MacOS) folder config
 .DS_Store
 
-# dependencies (bun install)
+# dependencies (pnpm install)
 node_modules
 
 # build output

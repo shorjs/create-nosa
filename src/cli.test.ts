@@ -1,10 +1,132 @@
 import { $, Glob } from 'bun'
 import { describe, expect, it } from 'bun:test'
-import { rm, mkdir } from 'node:fs/promises'
+import { rm, mkdir, mkdtemp, stat, writeFile, readFile, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 describe('cli flags', () => {
+  it('rejects invalid template flags without needing pnpm', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-invalid-flags-'))
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      const result =
+        await $`${process.execPath} run ${index} --name invalid-project --template invalid --structure simple --addons shadcn`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: tmpDir })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).not.toBe(0)
+      expect(result.stdout.toString()).toContain('Unsupported template combination')
+      expect(result.stdout.toString()).not.toContain('pnpm is not installed')
+      expect(await stat(join(tmpDir, 'invalid-project')).catch(() => undefined)).toBeUndefined()
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects missing pnpm without creating a project', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-missing-manager-'))
+    const binDir = join(tmpDir, 'bin')
+    const projectDir = join(tmpDir, 'uncreated-project')
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      await mkdir(binDir)
+      const result =
+        await $`${process.execPath} run ${index} --name uncreated-project --template start --structure simple --addons shadcn`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: binDir })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).not.toBe(0)
+      expect(result.stdout.toString()).toContain('pnpm is not installed')
+      expect(await stat(projectDir).catch(() => undefined)).toBeUndefined()
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('installs and prints pnpm next steps', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-pnpm-install-'))
+    const binDir = join(tmpDir, 'bin')
+    const logPath = join(tmpDir, 'install.log')
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      await mkdir(binDir)
+      await writeFile(
+        join(binDir, 'pnpm'),
+        '#!/bin/sh\nprintf "pnpm %s\\n" "$*" >> "$INSTALL_LOG"\n: > pnpm-lock.yaml\n',
+        { mode: 0o755 },
+      )
+      await writeFile(join(binDir, 'git'), '#!/bin/sh\necho "git $*" >> "$INSTALL_LOG"\n', {
+        mode: 0o755,
+      })
+
+      const result =
+        await $`${process.execPath} run ${index} --name generated --template start --structure simple --addons shadcn`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: binDir, INSTALL_LOG: logPath })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).toBe(0)
+      const generatedPackage = JSON.parse(
+        await readFile(join(tmpDir, 'generated', 'package.json'), 'utf8'),
+      )
+
+      expect(await Bun.file(join(tmpDir, 'generated', 'pnpm-lock.yaml')).exists()).toBe(true)
+
+      expect(generatedPackage.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
+      expect(generatedPackage['nano-staged']['*']).toBe(
+        'pnpm run fmt --no-error-on-unmatched-pattern',
+      )
+      expect(generatedPackage['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}']).toBe('pnpm run lint:fix')
+      expect(generatedPackage['simple-git-hooks']['pre-commit']).toBe(
+        './node_modules/.bin/nano-staged',
+      )
+      const commands = await readFile(logPath, 'utf8')
+      expect(commands).toContain('pnpm install')
+      expect(commands.indexOf('git init')).toBeLessThan(commands.indexOf('pnpm install'))
+      const readme = await readFile(join(tmpDir, 'generated', 'README.md'), 'utf8')
+      expect(readme).toContain('pnpm install')
+      expect(readme).toContain('pnpm run dev')
+
+      expect(result.stdout.toString()).toContain('Installed dependencies with pnpm')
+      expect(result.stdout.toString()).toContain('pnpm dev')
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('does not report success when installation fails', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-install-failure-'))
+    const binDir = join(tmpDir, 'bin')
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      await mkdir(binDir)
+      await writeFile(join(binDir, 'pnpm'), '#!/bin/sh\nexit 1\n', { mode: 0o755 })
+      await writeFile(join(binDir, 'git'), '#!/bin/sh\nexit 0\n', { mode: 0o755 })
+      const result =
+        await $`${process.execPath} run ${index} --name generated --template start --structure simple --addons shadcn`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: binDir })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).not.toBe(0)
+      expect(result.stdout.toString()).toContain('Failed to install dependencies with pnpm')
+      expect(result.stdout.toString()).not.toContain('Installed dependencies with pnpm')
+      expect(result.stdout.toString()).not.toContain('Created generated')
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
   it('scaffolds a project with all flags', async () => {
     const tmpDir = join(tmpdir(), 'create-nosa-e2e')
     await rm(tmpDir, { recursive: true, force: true })
@@ -36,6 +158,12 @@ describe('cli flags', () => {
 
     const pkg = JSON.parse(await Bun.file(join(projectDir, 'package.json')).text())
     expect(pkg.name).toBe('e2e-test')
+    expect(await Bun.file(join(projectDir, 'pnpm-lock.yaml')).exists()).toBe(true)
+
+    expect(await Bun.file(join(projectDir, 'pnpm-workspace.yaml')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, '.git/hooks/pre-commit')).text()).toContain(
+      './node_modules/.bin/nano-staged',
+    )
 
     const authServer = await Bun.file(join(projectDir, 'src/auth/auth.server.ts')).text()
     expect(authServer).toContain('socialProviders')
@@ -52,8 +180,9 @@ describe('cli flags', () => {
     expect(envExample).toContain('GOOGLE_CLIENT_ID=')
     expect(envExample).toContain('GOOGLE_CLIENT_SECRET=')
 
-    await $`bun run build`.cwd(projectDir).nothrow()
-    const lint = await $`bun run lint`.cwd(projectDir).nothrow()
+    const build = await $`pnpm build`.cwd(projectDir).nothrow()
+    expect(build.exitCode).toBe(0)
+    const lint = await $`pnpm lint`.cwd(projectDir).nothrow()
     expect(lint.exitCode).toBe(0)
 
     await rm(tmpDir, { recursive: true, force: true })
@@ -61,6 +190,91 @@ describe('cli flags', () => {
 })
 
 describe('template structure', () => {
+  it('generates the selected manifest and lockfile for all 16 variants', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-lockfile-variants-'))
+    const binDir = join(tmpDir, 'bin')
+    const index = join(import.meta.dir, '..', 'index.ts')
+    const folders = await readdir(join(import.meta.dir, 'templates'))
+
+    try {
+      await mkdir(binDir)
+      await writeFile(join(binDir, 'git'), '#!/bin/sh\nexit 0\n', { mode: 0o755 })
+      await writeFile(join(binDir, 'pnpm'), '#!/bin/sh\n: > pnpm-lock.yaml\n', { mode: 0o755 })
+
+      for (const folder of folders) {
+        const structure = folder.startsWith('start-simple') ? 'simple' : 'vertical'
+        const addons = ['shadcn', 'drizzle', 'betterauth', 'google-oauth'].filter((addon) =>
+          folder.includes(addon),
+        )
+        const name = folder
+        const addonFlag = addons.length > 0 ? addons.join(',') : ','
+        const result =
+          await $`${process.execPath} run ${index} --name ${name} --template start --structure ${structure} --addons ${addonFlag}`
+            .cwd(tmpDir)
+            .env({ ...process.env, PATH: binDir })
+            .nothrow()
+            .quiet()
+
+        expect(result.exitCode).toBe(0)
+        const projectPath = join(tmpDir, name)
+        const pkg = JSON.parse(await Bun.file(join(projectPath, 'package.json')).text())
+        const templatePath = join(import.meta.dir, 'templates', folder)
+        const templatePackage = JSON.parse(
+          await Bun.file(join(templatePath, 'package.json')).text(),
+        )
+        expect(pkg).toEqual({ ...templatePackage, name })
+
+        expect(pkg.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
+
+        expect(await Bun.file(join(projectPath, 'pnpm-workspace.yaml')).exists()).toBe(true)
+        expect(await Bun.file(join(projectPath, 'pnpm-workspace.yaml')).text()).toContain(
+          'simple-git-hooks: true',
+        )
+        for (const [outputFile, templateFile] of [
+          ['README.md', 'README.md'],
+          ['AGENTS.md', 'AGENTS.md'],
+          ['.gitignore', '_gitignore'],
+          ['pnpm-workspace.yaml', 'pnpm-workspace.yaml'],
+        ] as const) {
+          const content = await Bun.file(join(projectPath, outputFile)).text()
+          expect(content).toBe(await Bun.file(join(templatePath, templateFile)).text())
+        }
+        expect(await Bun.file(join(projectPath, 'README.md')).text()).toContain('pnpm install')
+
+        expect(await Bun.file(join(projectPath, 'pnpm-lock.yaml')).exists()).toBe(true)
+      }
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  }, 60_000)
+
+  it('keeps exact stable dependency versions in all 16 templates', async () => {
+    const templatesPath = join(import.meta.dir, 'templates')
+    const folders = await readdir(templatesPath)
+    expect(folders).toHaveLength(16)
+
+    for (const folder of folders) {
+      const pkg = JSON.parse(await Bun.file(join(templatesPath, folder, 'package.json')).text())
+      expect(pkg.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
+      expect(pkg['nano-staged']['*']).toBe('pnpm run fmt --no-error-on-unmatched-pattern')
+      expect(pkg['nano-staged']['*.{js,jsx,ts,tsx,mjs,cjs}']).toBe('pnpm run lint:fix')
+      if (folder.includes('betterauth')) {
+        const config = folder.includes('simple') ? './src/lib/auth.ts' : './src/auth/auth.server.ts'
+        const output = folder.includes('simple')
+          ? './src/db/auth.schema.ts'
+          : './src/auth/auth.schema.ts'
+        expect(pkg.scripts['auth:generate']).toBe(
+          `pnpm dlx @better-auth/cli@1.4.21 generate --config ${config} --output ${output} --yes`,
+        )
+      }
+
+      expect(await Bun.file(join(templatesPath, folder, 'pnpm-workspace.yaml')).exists()).toBe(true)
+
+      for (const version of Object.values({ ...pkg.dependencies, ...pkg.devDependencies })) {
+        expect(version).toMatch(/^\d+\.\d+\.\d+$/)
+      }
+    }
+  })
   it('has all core template files for start-simple', async () => {
     const templatesPath = join(import.meta.dir, 'templates')
 
@@ -68,7 +282,7 @@ describe('template structure', () => {
       'package.json',
       'tsconfig.json',
       'vite.config.ts',
-      'bunfig.toml',
+      'pnpm-workspace.yaml',
       'src/errors.ts',
       'src/router.tsx',
       'src/routes/__root.tsx',
@@ -89,7 +303,7 @@ describe('template structure', () => {
       'package.json',
       'tsconfig.json',
       'vite.config.ts',
-      'bunfig.toml',
+      'pnpm-workspace.yaml',
       'src/errors/errors.ts',
       'src/errors/error-boundary.tsx',
       'src/router.tsx',
@@ -184,7 +398,6 @@ describe('template structure', () => {
     const shadcnChangedFiles = [
       'AGENTS.md',
       'README.md',
-      'bun.lock',
       'package.json',
       'src/routes/__root.tsx',
       'src/routes/index.tsx',
@@ -242,13 +455,7 @@ describe('template structure', () => {
         }),
       ),
     )
-    const drizzleChangedFiles = [
-      'AGENTS.md',
-      'README.md',
-      'bun.lock',
-      'package.json',
-      'src/routes/index.tsx',
-    ]
+    const drizzleChangedFiles = ['AGENTS.md', 'README.md', 'package.json', 'src/routes/index.tsx']
 
     expect([...drizzleFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
@@ -297,7 +504,6 @@ describe('template structure', () => {
     const shadcnDrizzleChangedFiles = [
       'AGENTS.md',
       'README.md',
-      'bun.lock',
       'package.json',
       'src/routes/__root.tsx',
       'src/routes/index.tsx',
@@ -363,7 +569,6 @@ describe('template structure', () => {
     const betterauthChangedFiles = [
       'AGENTS.md',
       'README.md',
-      'bun.lock',
       'package.json',
       'src/routes/index.tsx',
     ]
@@ -424,7 +629,6 @@ describe('template structure', () => {
     const shadcnBetterauthChangedFiles = [
       'AGENTS.md',
       'README.md',
-      'bun.lock',
       'package.json',
       'src/routes/__root.tsx',
       'src/routes/index.tsx',
@@ -498,7 +702,6 @@ describe('template structure', () => {
     const changedFiles = [
       'AGENTS.md',
       'README.md',
-      'bun.lock',
       'package.json',
       'src/errors/error-boundary.tsx',
       'src/routes/__root.tsx',
@@ -557,13 +760,7 @@ describe('template structure', () => {
         }),
       ),
     )
-    const changedFiles = [
-      'AGENTS.md',
-      'README.md',
-      'bun.lock',
-      'package.json',
-      'src/routes/index.tsx',
-    ]
+    const changedFiles = ['AGENTS.md', 'README.md', 'package.json', 'src/routes/index.tsx']
 
     expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
@@ -612,7 +809,6 @@ describe('template structure', () => {
     const changedFiles = [
       'AGENTS.md',
       'README.md',
-      'bun.lock',
       'package.json',
       'src/errors/error-boundary.tsx',
       'src/routes/__root.tsx',
@@ -676,13 +872,7 @@ describe('template structure', () => {
         }),
       ),
     )
-    const changedFiles = [
-      'AGENTS.md',
-      'README.md',
-      'bun.lock',
-      'package.json',
-      'src/routes/index.tsx',
-    ]
+    const changedFiles = ['AGENTS.md', 'README.md', 'package.json', 'src/routes/index.tsx']
 
     expect([...variantFiles].filter((filePath) => !baseFiles.has(filePath)).sort()).toEqual([
       '.env.example',
@@ -737,7 +927,6 @@ describe('template structure', () => {
     const changedFiles = [
       'AGENTS.md',
       'README.md',
-      'bun.lock',
       'package.json',
       'src/errors/error-boundary.tsx',
       'src/routes/__root.tsx',

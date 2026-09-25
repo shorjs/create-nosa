@@ -89,7 +89,7 @@ Do not write optional code or config that only repeats a tool's default behavior
 # Stacks
 
 - `@clack/prompts` for the interactive CLI
-- `bun` for runtime, file system operations, and package management
+- `bun` for the generator's runtime, file system operations, tests, and maintainer package management; generated projects use pnpm
 - `shadcn` — when making changes to templates that enable shadcn add-ons, load the `/shadcn` skill first
 - `@tanstack/react-form` is included in every shadcn-enabled template; it is not a separate add-on.
 
@@ -103,20 +103,7 @@ Before adding or updating a dependency, always check `https://npmx.dev/package/<
 
 ## Compatibility
 
-Although we are developing `create-nosa` in a Bun environment and we are favoring on first class support of `bun`, the output codebase should be compatible with both Bun and Other Node supported package manager.
-
-It means usage below should also be valid for users of others package manager
-
-```bash
-# npx
-npx create nosa
-# yarn dlx
-yarn dlx create nosa
-# pnpm dlx
-pnpm dlx create nosa
-```
-
-Those invocation methods are supported, but every generated project still uses Bun by default because the CLI runs `bun install` and creates a fresh `bun.lock`. Users can switch to their preferred package manager by replacing `bun.lock` with their preferred package manager lock file and installing dependencies with it.
+`create-nosa` runs on Bun and uses Bun for its own dependency management. Generated projects use Node.js and pnpm only; they must not require Bun. The supported CLI invocations are `bun create nosa`, `npm create nosa`, and `pnpm create nosa`; Bun must be installed to run the CLI. Each supported invocation produces pnpm output: the CLI runs `pnpm install`, creates `pnpm-lock.yaml`, and prints pnpm next steps.
 
 ## Implementation
 
@@ -126,4 +113,4 @@ Use full template copies. Each supported combination of base template, codebase 
 
 Templates include a basic `src/AGENTS.md`.
 
-`routeTree.gen.ts` is excluded from templates — it gets generated automatically by the TanStack Router Vite plugin when the user runs `bun run dev`. Refer to the outro message we show at the end of scaffolding for context.
+`routeTree.gen.ts` is excluded from templates — it gets generated automatically by the TanStack Router Vite plugin when the user runs `pnpm dev`. Refer to the outro message we show at the end of scaffolding for context.

@@ -39,6 +39,10 @@ export async function runCli() {
       case '-a':
         flagAddons = args[++i]
         break
+
+      case '--package-manager':
+        console.error('Generated projects use pnpm only; --package-manager is no longer supported.')
+        process.exit(1)
       case '--help':
       case '-h':
         console.log(`create-nosa - Project scaffolder for nosa
@@ -51,6 +55,7 @@ Options:
   -t, --template <template> Template name (default: start)
   -s, --structure <type>    Codebase structure (simple, vertical)
   -a, --addons <list>       Comma-separated add-ons (shadcn,drizzle,betterauth,google-oauth)
+
   -h, --help                Show this help message
 
 Examples:
@@ -213,6 +218,11 @@ Examples:
     }
 
     const normalizedProjectName = (projectName || defaultProjectName).trim()
+
+    if (!Bun.which('pnpm')) {
+      throw new Error('pnpm is not installed. Install it before creating a project.')
+    }
+
     const targetPath = resolve(process.cwd(), normalizedProjectName)
     const targetStats = await stat(targetPath).catch(() => undefined)
 
@@ -251,19 +261,10 @@ Examples:
       .replace(/[^a-z\d\-~]+/g, '-')
 
     packageJson.name = packageName || 'app'
+
     await Bun.write(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`)
 
     const operation = spinner()
-
-    operation.start('Installing dependencies with Bun')
-
-    try {
-      await $`bun install`.cwd(targetPath).quiet()
-      operation.stop('Installed dependencies with Bun')
-    } catch (error) {
-      operation.error('Failed to install dependencies with Bun')
-      throw error
-    }
 
     operation.start('Initializing git')
 
@@ -272,6 +273,16 @@ Examples:
       operation.stop('Initialized git')
     } catch (error) {
       operation.error('Failed to initialize git')
+      throw error
+    }
+
+    operation.start('Installing dependencies with pnpm')
+
+    try {
+      await $`pnpm install`.cwd(targetPath).quiet()
+      operation.stop('Installed dependencies with pnpm')
+    } catch (error) {
+      operation.error('Failed to install dependencies with pnpm')
       throw error
     }
 
@@ -287,9 +298,9 @@ ${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
 
 Next commands:
   cd ${normalizedProjectName}
-  bun run dev
+  pnpm dev
 
-Note: The first time you run \`bun run dev\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
+Note: The first time you run \`pnpm dev\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
   } catch (error) {
     cancel(error instanceof Error ? error.message : 'Unexpected error.')
     process.exit(1)

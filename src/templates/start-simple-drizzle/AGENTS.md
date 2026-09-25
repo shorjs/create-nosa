@@ -12,8 +12,8 @@ Do not write optional code or config that only repeats a tool's default behavior
 
 ## Drizzle Database Workflow
 
-During development, use `bun db:push` to apply schema changes while iterating.
+During development, use `pnpm db:push` to apply schema changes while iterating.
 
-Do not run `bun db:generate` for normal development schema changes. It creates migration files and should only be run when the user explicitly asks to create migrations, prepare release migrations, or says the schema is settled for release.
+Do not run `pnpm db:generate` for normal development schema changes. It creates migration files and should only be run when the user explicitly asks to create migrations, prepare release migrations, or says the schema is settled for release.
 
-If you edit Drizzle schema files, validate the change with `bun db:push` and relevant checks instead of generating migrations.
+If you edit Drizzle schema files, validate the change with `pnpm db:push` and relevant checks instead of generating migrations.

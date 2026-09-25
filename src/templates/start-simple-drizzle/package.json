@@ -14,7 +14,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "postinstall": "bunx --bun simple-git-hooks"
+    "postinstall": "pnpm exec simple-git-hooks"
   },
   "dependencies": {
     "@tailwindcss/vite": "4.3.0",
@@ -44,7 +44,7 @@
     "pre-commit": "./node_modules/.bin/nano-staged"
   },
   "nano-staged": {
-    "*": "bun run fmt --no-error-on-unmatched-pattern",
-    "*.{js,jsx,ts,tsx,mjs,cjs}": "bun run lint:fix"
+    "*": "pnpm run fmt --no-error-on-unmatched-pattern",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": "pnpm run lint:fix"
   }
 }

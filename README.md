@@ -2,38 +2,27 @@
 
 Scaffolding for nosa projects.
 
-`create-nosa` is a Bun first project generator. It runs an interactive setup flow, copies a selected static template folder, installs dependencies with Bun when the selected template is complete, initializes git, and prints the next commands.
+`create-nosa` runs on Bun. It runs an interactive setup flow, copies a selected static template folder, initializes git, installs the generated project's dependencies with pnpm, and prints the next commands. Generated projects use Node.js and pnpm, not Bun.
 
 ## Requirements
 
-- Bun `>=1.3.0`
+- Bun `>=1.3.0` to run the generator
+- Node.js v24.x and pnpm to install and run generated projects
 - Git
 
-Nix users can optionally run `nix develop` to enter a shell with Bun and Git.
+Nix users can optionally run `nix develop` for the generator's Bun-based maintainer shell; pnpm and Node.js must be installed separately to generate projects.
 
 ## Usage
 
-With Bun:
+Run the generator with any of these commands:
 
 ```bash
-bun create nosa@latest
+bun create nosa
+npm create nosa
+pnpm create nosa
 ```
 
-You can also run the package directly:
-
-```bash
-bunx --bun create-nosa@latest
-```
-
-Other package runners can invoke the CLI too:
-
-```bash
-npx create nosa
-yarn dlx create nosa
-pnpm dlx create nosa
-```
-
-The generated templates include `bunfig.toml` and use Bun by default. A fresh `bun.lock` is generated during `bun install`.
+Bun is required to run the CLI, regardless of which command launches it. Every generated project uses pnpm: the CLI runs `pnpm install` and creates `pnpm-lock.yaml`; generated projects do not require Bun.
 
 ## Interactive Flow
 
