@@ -13,6 +13,27 @@ describe('cli flags', () => {
     expect(result.stderr.toString()).toContain('Generated projects use pnpm only')
   })
 
+  it('rejects invalid template flags without needing pnpm', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-invalid-flags-'))
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      const result =
+        await $`${process.execPath} run ${index} --name invalid-project --template invalid --structure simple --addons shadcn`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: tmpDir })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).not.toBe(0)
+      expect(result.stdout.toString()).toContain('Unsupported template combination')
+      expect(result.stdout.toString()).not.toContain('pnpm is not installed')
+      expect(await stat(join(tmpDir, 'invalid-project')).catch(() => undefined)).toBeUndefined()
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
   it('rejects missing pnpm without creating a project', async () => {
     const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-missing-manager-'))
     const binDir = join(tmpDir, 'bin')
@@ -78,6 +99,10 @@ describe('cli flags', () => {
       const commands = await readFile(logPath, 'utf8')
       expect(commands).toContain('pnpm install')
       expect(commands.indexOf('git init')).toBeLessThan(commands.indexOf('pnpm install'))
+      const readme = await readFile(join(tmpDir, 'generated', 'README.md'), 'utf8')
+      expect(readme).toContain('pnpm install')
+      expect(readme).toContain('pnpm run dev')
+      expect(readme).not.toMatch(/\bbun(?:x)?\b/i)
       expect(result.stdout.toString()).toContain('Installed dependencies with pnpm')
       expect(result.stdout.toString()).toContain('pnpm dev')
     } finally {
@@ -103,6 +128,7 @@ describe('cli flags', () => {
 
       expect(result.exitCode).not.toBe(0)
       expect(result.stdout.toString()).toContain('Failed to install dependencies with pnpm')
+      expect(result.stdout.toString()).not.toContain('Installed dependencies with pnpm')
       expect(result.stdout.toString()).not.toContain('Created generated')
     } finally {
       await rm(tmpDir, { recursive: true, force: true })
@@ -140,6 +166,13 @@ describe('cli flags', () => {
 
     const pkg = JSON.parse(await Bun.file(join(projectDir, 'package.json')).text())
     expect(pkg.name).toBe('e2e-test')
+    expect(await Bun.file(join(projectDir, 'pnpm-lock.yaml')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, 'bun.lock')).exists()).toBe(false)
+    expect(await Bun.file(join(projectDir, 'bunfig.toml')).exists()).toBe(false)
+    expect(await Bun.file(join(projectDir, 'pnpm-workspace.yaml')).exists()).toBe(true)
+    expect(await Bun.file(join(projectDir, '.git/hooks/pre-commit')).text()).toContain(
+      './node_modules/.bin/nano-staged',
+    )
 
     const authServer = await Bun.file(join(projectDir, 'src/auth/auth.server.ts')).text()
     expect(authServer).toContain('socialProviders')
@@ -156,7 +189,8 @@ describe('cli flags', () => {
     expect(envExample).toContain('GOOGLE_CLIENT_ID=')
     expect(envExample).toContain('GOOGLE_CLIENT_SECRET=')
 
-    await $`pnpm build`.cwd(projectDir).nothrow()
+    const build = await $`pnpm build`.cwd(projectDir).nothrow()
+    expect(build.exitCode).toBe(0)
     const lint = await $`pnpm lint`.cwd(projectDir).nothrow()
     expect(lint.exitCode).toBe(0)
 
@@ -193,7 +227,11 @@ describe('template structure', () => {
         expect(result.exitCode).toBe(0)
         const projectPath = join(tmpDir, name)
         const pkg = JSON.parse(await Bun.file(join(projectPath, 'package.json')).text())
-        expect(pkg.name).toBe(name)
+        const templatePath = join(import.meta.dir, 'templates', folder)
+        const templatePackage = JSON.parse(
+          await Bun.file(join(templatePath, 'package.json')).text(),
+        )
+        expect(pkg).toEqual({ ...templatePackage, name })
         expect(pkg.packageManager).toBeUndefined()
         expect(pkg.scripts.postinstall).toBe('pnpm exec simple-git-hooks')
         expect(await Bun.file(join(projectPath, 'bunfig.toml')).exists()).toBe(false)
@@ -201,10 +239,17 @@ describe('template structure', () => {
         expect(await Bun.file(join(projectPath, 'pnpm-workspace.yaml')).text()).toContain(
           'simple-git-hooks: true',
         )
-        for (const file of ['README.md', 'AGENTS.md', '.gitignore']) {
-          const content = await Bun.file(join(projectPath, file)).text()
+        for (const [outputFile, templateFile] of [
+          ['README.md', 'README.md'],
+          ['AGENTS.md', 'AGENTS.md'],
+          ['.gitignore', '_gitignore'],
+          ['pnpm-workspace.yaml', 'pnpm-workspace.yaml'],
+        ] as const) {
+          const content = await Bun.file(join(projectPath, outputFile)).text()
+          expect(content).toBe(await Bun.file(join(templatePath, templateFile)).text())
           expect(content).not.toMatch(/\bbun(?:x)?\b/i)
         }
+        expect(await Bun.file(join(projectPath, 'README.md')).text()).toContain('pnpm install')
         expect(JSON.stringify(pkg.scripts)).not.toMatch(/\bbun(?:x)?\b/i)
         expect(await Bun.file(join(projectPath, 'pnpm-lock.yaml')).exists()).toBe(true)
         expect(await Bun.file(join(projectPath, 'bun.lock')).exists()).toBe(false)
