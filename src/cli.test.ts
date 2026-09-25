@@ -1,6 +1,6 @@
 import { $, Glob } from 'bun'
 import { describe, expect, it } from 'bun:test'
-import { rm, mkdir, mkdtemp, symlink, stat } from 'node:fs/promises'
+import { rm, mkdir, mkdtemp, symlink, stat, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -54,6 +54,66 @@ describe('cli flags', () => {
       expect(result.exitCode).not.toBe(0)
       expect(result.stdout.toString()).toContain('pnpm is not installed')
       expect(await stat(projectDir).catch(() => undefined)).toBeUndefined()
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it.each(['bun', 'pnpm'] as const)('installs and prints next steps with %s', async (manager) => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-install-choice-'))
+    const binDir = join(tmpDir, 'bin')
+    const logPath = join(tmpDir, 'install.log')
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      await mkdir(binDir)
+      for (const command of ['bun', 'pnpm', 'git']) {
+        await writeFile(
+          join(binDir, command),
+          `#!/bin/sh\nprintf '%s %s\\n' '${command}' "$*" >> "$INSTALL_LOG"\nexit 0\n`,
+          { mode: 0o755 },
+        )
+      }
+
+      const result =
+        await $`${process.execPath} run ${index} --name generated --template start --structure simple --addons shadcn --package-manager ${manager}`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: binDir, INSTALL_LOG: logPath })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).toBe(0)
+      expect(await readFile(logPath, 'utf8')).toContain(`${manager} install`)
+      expect(await readFile(logPath, 'utf8')).not.toContain(
+        `${manager === 'bun' ? 'pnpm' : 'bun'} install`,
+      )
+      expect(result.stdout.toString()).toContain(
+        `Installed dependencies with ${manager === 'bun' ? 'Bun' : 'pnpm'}`,
+      )
+      expect(result.stdout.toString()).toContain(manager === 'bun' ? 'bun run dev' : 'pnpm dev')
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
+  })
+
+  it('does not report success when installation fails', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-install-failure-'))
+    const binDir = join(tmpDir, 'bin')
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      await mkdir(binDir)
+      await writeFile(join(binDir, 'pnpm'), '#!/bin/sh\nexit 1\n', { mode: 0o755 })
+      const result =
+        await $`${process.execPath} run ${index} --name generated --template start --structure simple --addons shadcn --package-manager pnpm`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: binDir })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).not.toBe(0)
+      expect(result.stdout.toString()).toContain('Failed to install dependencies with pnpm')
+      expect(result.stdout.toString()).not.toContain('Created generated')
     } finally {
       await rm(tmpDir, { recursive: true, force: true })
     }

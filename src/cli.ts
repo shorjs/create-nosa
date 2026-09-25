@@ -290,13 +290,18 @@ Examples:
 
     const operation = spinner()
 
-    operation.start('Installing dependencies with Bun')
+    const managerLabel = packageManager === 'bun' ? 'Bun' : 'pnpm'
+    operation.start(`Installing dependencies with ${managerLabel}`)
 
     try {
-      await $`bun install`.cwd(targetPath).quiet()
-      operation.stop('Installed dependencies with Bun')
+      if (packageManager === 'bun') {
+        await $`bun install`.cwd(targetPath).quiet()
+      } else {
+        await $`pnpm install`.cwd(targetPath).quiet()
+      }
+      operation.stop(`Installed dependencies with ${managerLabel}`)
     } catch (error) {
-      operation.error('Failed to install dependencies with Bun')
+      operation.error(`Failed to install dependencies with ${managerLabel}`)
       throw error
     }
 
@@ -317,14 +322,16 @@ Examples:
       ),
     )
 
+    const devCommand = packageManager === 'bun' ? 'bun run dev' : 'pnpm dev'
+
     outro(`Created ${normalizedProjectName}
 ${addons.length > 0 ? `Add-ons: ${addons.join(', ')}` : 'No add-ons selected'}
 
 Next commands:
   cd ${normalizedProjectName}
-  bun run dev
+  ${devCommand}
 
-Note: The first time you run \`bun run dev\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
+Note: The first time you run \`${devCommand}\`, the TanStack Router plugin will generate \`src/routeTree.gen.ts\` automatically.`)
   } catch (error) {
     cancel(error instanceof Error ? error.message : 'Unexpected error.')
     process.exit(1)
