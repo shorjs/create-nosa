@@ -243,6 +243,11 @@ Examples:
     }
 
     const normalizedProjectName = (projectName || defaultProjectName).trim()
+
+    if (!Bun.which(packageManager)) {
+      throw new Error(`${packageManager} is not installed. Install it before creating a project.`)
+    }
+
     const targetPath = resolve(process.cwd(), normalizedProjectName)
     const targetStats = await stat(targetPath).catch(() => undefined)
 

@@ -1,6 +1,6 @@
 import { $, Glob } from 'bun'
 import { describe, expect, it } from 'bun:test'
-import { rm, mkdir } from 'node:fs/promises'
+import { rm, mkdir, mkdtemp, symlink, stat } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -32,6 +32,31 @@ describe('cli flags', () => {
 
     expect(result.stdout.toString()).toContain('Unsupported template combination')
     expect(result.stdout.toString()).not.toContain('Unsupported package manager')
+  })
+
+  it('rejects an uninstalled package manager without creating a project', async () => {
+    const tmpDir = await mkdtemp(join(tmpdir(), 'create-nosa-missing-manager-'))
+    const binDir = join(tmpDir, 'bin')
+    const projectDir = join(tmpDir, 'uncreated-project')
+    const index = join(import.meta.dir, '..', 'index.ts')
+
+    try {
+      await mkdir(binDir)
+      await symlink(process.execPath, join(binDir, 'bun'))
+
+      const result =
+        await $`bun run ${index} --name uncreated-project --template start --structure simple --addons shadcn --package-manager pnpm`
+          .cwd(tmpDir)
+          .env({ ...process.env, PATH: binDir })
+          .nothrow()
+          .quiet()
+
+      expect(result.exitCode).not.toBe(0)
+      expect(result.stdout.toString()).toContain('pnpm is not installed')
+      expect(await stat(projectDir).catch(() => undefined)).toBeUndefined()
+    } finally {
+      await rm(tmpDir, { recursive: true, force: true })
+    }
   })
 
   it('scaffolds a project with all flags', async () => {
