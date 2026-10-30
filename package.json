@@ -38,12 +38,12 @@
     "@clack/prompts": "1.8.1"
   },
   "devDependencies": {
-    "@types/bun": "1.4.2",
+    "@types/bun": "1.4.4",
     "bumpp": "12.3.0",
     "nano-staged": "1.0.2",
-    "oxfmt": "0.70.0",
-    "oxlint": "1.85.0",
-    "oxlint-tsgolint": "7.0.2003",
+    "oxfmt": "0.75.0",
+    "oxlint": "1.90.0",
+    "oxlint-tsgolint": "7.0.2005",
     "simple-git-hooks": "2.14.0",
     "typescript": "7.0.2"
   },
